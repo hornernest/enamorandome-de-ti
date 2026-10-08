@@ -34,11 +34,11 @@ def index():
     
     with get_db() as conn:
         cursor = conn.cursor()
-        cursor.execute('SELECT title, date_event, story, photo_data FROM memories ORDER BY date_event ASC')
+        cursor.execute('SELECT id, title, date_event, story, photo_data FROM memories ORDER BY date_event ASC')
         rows = cursor.fetchall()
 
     memories = [
-        {"title": r[0], "date": r[1], "story": r[2], "photo": r[3]}
+        {"id": r[0], "title": r[1], "date": r[2], "story": r[3], "photo": r[4]}
         for r in rows
     ]
     return render_template('index.html', logged_in=True, memories=memories)
@@ -63,8 +63,6 @@ def add():
 
     photo_b64 = None
     if photo and photo.filename != '':
-        # Guardamos la foto directo en la base de datos como base64
-        # para que nunca se borre aunque se reinicie el servidor
         data = photo.read()
         mime = photo.mimetype or 'image/jpeg'
         photo_b64 = f"data:{mime};base64,{base64.b64encode(data).decode('utf-8')}"
@@ -74,6 +72,15 @@ def add():
             'INSERT INTO memories (title, date_event, story, photo_data) VALUES (?, ?, ?, ?)',
             (title, date_event, story, photo_b64)
         )
+    return redirect(url_for('index'))
+
+@app.route('/delete/<int:id>', methods=['POST'])
+def delete(id):
+    if not session.get('logged_in'):
+        return redirect(url_for('index'))
+
+    with get_db() as conn:
+        conn.execute('DELETE FROM memories WHERE id = ?', (id,))
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
