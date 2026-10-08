@@ -55,7 +55,7 @@
       object-fit: cover;
     }
 
-    /* Zoom in y Zoom out suave continuo para la foto al abrir el recuerdo */
+    /* Animación de acercar y alejar foto */
     @keyframes breathingZoom {
       0% { transform: scale(1); }
       50% { transform: scale(1.08); }
@@ -64,11 +64,34 @@
     .animate-photo-zoom {
       animation: breathingZoom 8s ease-in-out infinite alternate;
     }
+
+    /* Giro de disco de música cuando suena */
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+      animation: spinSlow 5s linear infinite;
+    }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-pink-500 selection:text-white flex flex-col justify-between overflow-x-hidden relative">
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-pink-500 selection:text-white flex flex-col justify-between overflow-x-hidden relative" onclick="tryAutoplay()">
 
-  <!-- FONDO: COLLAGE TOTAL CON TUS 8 FOTOS DE STATIC/IMG/ -->
+  <!-- AUDIO DE FONDO -->
+  <audio id="bgMusic" loop preload="auto">
+    <source src="{{ url_for('static', filename='musica.mp3') }}" type="audio/mpeg">
+  </audio>
+
+  <!-- BOTÓN FLOTANTE DE CONTROL DE MÚSICA (ARRIBA A LA IZQUIERDA) -->
+  <button id="musicToggleBtn" onclick="event.stopPropagation(); toggleMusic();" 
+          class="fixed top-5 left-5 z-40 bg-slate-900/80 hover:bg-slate-800 text-pink-400 border border-pink-500/30 backdrop-blur-md px-3.5 py-2 rounded-full flex items-center gap-2.5 shadow-xl transition-all active:scale-95">
+    <div id="discIcon" class="w-6 h-6 rounded-full bg-pink-500/20 flex items-center justify-center text-xs">
+      <i class="fas fa-compact-disc"></i>
+    </div>
+    <span id="musicLabel" class="text-[11px] font-semibold tracking-wide text-slate-200">Play Música</span>
+  </button>
+
+  <!-- FONDO: COLLAGE TOTAL -->
   <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
     <div id="collageWall" class="bg-collage-grid">
       <img src="{{ url_for('static', filename='img/foto1.jpg') }}" class="collage-tile" alt="Fondo 1">
@@ -80,7 +103,6 @@
       <img src="{{ url_for('static', filename='img/foto7.jpg') }}" class="collage-tile" style="animation-delay: -12s;" alt="Fondo 7">
       <img src="{{ url_for('static', filename='img/foto8.jpg') }}" class="collage-tile" style="animation-delay: -14s;" alt="Fondo 8">
     </div>
-    <!-- Velo sutil para lectura perfecta de los textos -->
     <div class="absolute inset-0 bg-slate-950/50 backdrop-blur-[1px]"></div>
   </div>
 
@@ -186,7 +208,7 @@
     <i class="fas fa-plus text-xl"></i>
   </button>
 
-  <!-- MODAL: VISOR DE DETALLE CON ZOOM CINEMATOGRÁFICO -->
+  <!-- MODAL: DETALLE -->
   <div id="modalDetail" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900/95 border border-slate-800 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl relative">
       <button onclick="document.getElementById('modalDetail').classList.add('hidden')" class="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-slate-950/70 text-slate-300 flex items-center justify-center hover:text-white">
@@ -297,6 +319,7 @@
   </div>
 
   <script>
+    // Contador
     const START_DATE = new Date('2026-06-19T16:37:00');
 
     function updateCounter() {
@@ -319,7 +342,45 @@
     setInterval(updateCounter, 1000);
     updateCounter();
 
-    // Sumar nuevos recuerdos subidos al collage de fondo
+    // Control de Audio
+    const audio = document.getElementById('bgMusic');
+    const discIcon = document.getElementById('discIcon');
+    const musicLabel = document.getElementById('musicLabel');
+    let isPlaying = false;
+    let hasInteracted = false;
+
+    // Volumen suave al 40% para que sea música ambiental
+    audio.volume = 0.4;
+
+    function toggleMusic() {
+      if (isPlaying) {
+        audio.pause();
+        isPlaying = false;
+        discIcon.classList.remove('animate-spin-slow');
+        musicLabel.innerText = "Play Música";
+      } else {
+        audio.play().then(() => {
+          isPlaying = true;
+          discIcon.classList.add('animate-spin-slow');
+          musicLabel.innerText = "Pausar";
+        }).catch(e => console.log("Audio play blocked", e));
+      }
+    }
+
+    // Los navegadores móviles bloquean sonido automático sin interacción previa;
+    // este listener arranca el tema al primer toque en la pantalla
+    function tryAutoplay() {
+      if (!hasInteracted && !isPlaying) {
+        hasInteracted = true;
+        audio.play().then(() => {
+          isPlaying = true;
+          discIcon.classList.add('animate-spin-slow');
+          musicLabel.innerText = "Pausar";
+        }).catch(() => {});
+      }
+    }
+
+    // Sumar nuevos recuerdos al collage
     document.addEventListener("DOMContentLoaded", function() {
       const memoriesData = {{ memories|tojson }};
       const wall = document.getElementById('collageWall');
