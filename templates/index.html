@@ -78,7 +78,6 @@
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-pink-500 selection:text-white flex flex-col justify-between overflow-x-hidden relative" onclick="tryAutoplay()">
 
   <!-- AUDIO DE FONDO -->
- <!-- AUDIO DE FONDO -->
   <audio id="bgMusic" loop preload="auto">
     <source src="{{ url_for('static', filename='musica.mp3') }}" type="audio/mpeg">
     <source src="{{ url_for('static', filename='img/musica.mp3') }}" type="audio/mpeg">
@@ -210,16 +209,18 @@
     <i class="fas fa-plus text-xl"></i>
   </button>
 
-  <!-- MODAL: DETALLE -->
+  <!-- MODAL: DETALLE CON FOTOS/VIDEOS Y BOTÓN COMPARTIR -->
   <div id="modalDetail" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900/95 border border-slate-800 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl relative">
       <button onclick="document.getElementById('modalDetail').classList.add('hidden')" class="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-slate-950/70 text-slate-300 flex items-center justify-center hover:text-white">
         <i class="fas fa-times text-xs"></i>
       </button>
 
-      <div id="detailPhotoContainer" class="w-full h-72 bg-slate-950 overflow-hidden relative hidden">
-        <img id="detailPhoto" src="" class="w-full h-full object-cover animate-photo-zoom">
-        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
+      <!-- CONTENEDOR MULTIMEDIA (FOTO O VIDEO) -->
+      <div id="detailMediaContainer" class="w-full h-72 bg-slate-950 overflow-hidden relative hidden">
+        <img id="detailPhoto" src="" class="w-full h-full object-cover animate-photo-zoom hidden">
+        <video id="detailVideo" src="" class="w-full h-full object-cover hidden" controls playsinline></video>
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent pointer-events-none"></div>
       </div>
 
       <div class="p-5 relative">
@@ -227,6 +228,10 @@
           <span id="detailDate" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-400 border border-pink-500/30"></span>
 
           <div class="flex items-center space-x-2">
+            <!-- BOTÓN COMPARTIR -->
+            <button onclick="compartirRecuerdoActual()" class="text-pink-300 hover:text-white text-xs px-2.5 py-1 rounded-lg bg-pink-600/30 hover:bg-pink-600/50 border border-pink-500/30 transition-all flex items-center gap-1.5 shadow-sm">
+              <i class="fas fa-share-nodes"></i> Compartir
+            </button>
             <button id="btnEditMemory" class="text-slate-400 hover:text-pink-400 text-xs px-2.5 py-1 rounded-lg bg-slate-800">
               <i class="fas fa-pen mr-1"></i> Editar
             </button>
@@ -249,186 +254,4 @@
     <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-bold text-white">Nuevo Momento</h3>
-        <button onclick="document.getElementById('modalAdd').classList.add('hidden')" class="text-slate-400 hover:text-white p-2">
-          <i class="fas fa-times text-xl"></i>
-        </button>
-      </div>
-
-      <form action="/add" method="POST" enctype="multipart/form-data" class="space-y-4">
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Título del momento</label>
-          <input type="text" name="title" required placeholder="Ej. El día que fuimos por nieve..." 
-                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Fecha</label>
-          <input type="date" name="date_event" required 
-                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Foto especial</label>
-          <input type="file" name="photo" accept="image/*" 
-                 class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-pink-500/10 file:text-pink-400">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Anécdota / Historia</label>
-          <textarea name="story" rows="3" placeholder="¿Qué sentiste ese día?" 
-                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500"></textarea>
-        </div>
-        <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 py-3 rounded-2xl font-semibold text-white shadow-lg transition-all">
-          Guardar recuerdo
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL: EDITAR -->
-  <div id="modalEdit" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden">
-    <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-bold text-white">Editar Momento</h3>
-        <button onclick="document.getElementById('modalEdit').classList.add('hidden')" class="text-slate-400 hover:text-white p-2">
-          <i class="fas fa-times text-xl"></i>
-        </button>
-      </div>
-
-      <form id="formEdit" method="POST" enctype="multipart/form-data" class="space-y-4">
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Título del momento</label>
-          <input type="text" id="editTitle" name="title" required 
-                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Fecha</label>
-          <input type="date" id="editDate" name="date_event" required 
-                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Cambiar Foto (opcional)</label>
-          <input type="file" name="photo" accept="image/*" 
-                 class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-pink-500/10 file:text-pink-400">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Anécdota / Historia</label>
-          <textarea id="editStory" name="story" rows="3" 
-                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500"></textarea>
-        </div>
-        <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 py-3 rounded-2xl font-semibold text-white shadow-lg transition-all">
-          Actualizar recuerdo
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <script>
-    // Contador
-    const START_DATE = new Date('2026-06-19T16:37:00');
-
-    function updateCounter() {
-      const now = new Date();
-      const diffMs = now - START_DATE;
-
-      if (diffMs > 0) {
-        const totalSeconds = Math.floor(diffMs / 1000);
-        const days = Math.floor(totalSeconds / (3600 * 24));
-        const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = Math.floor(totalSeconds % 60);
-
-        document.getElementById('days').innerText = days;
-        document.getElementById('hours').innerText = hours;
-        document.getElementById('minutes').innerText = minutes;
-        document.getElementById('seconds').innerText = seconds;
-      }
-    }
-    setInterval(updateCounter, 1000);
-    updateCounter();
-
-    // Control de Audio
-    const audio = document.getElementById('bgMusic');
-    const discIcon = document.getElementById('discIcon');
-    const musicLabel = document.getElementById('musicLabel');
-    let isPlaying = false;
-    let hasInteracted = false;
-
-    // Volumen suave al 40% para que sea música ambiental
-    audio.volume = 0.4;
-
-    function toggleMusic() {
-      if (isPlaying) {
-        audio.pause();
-        isPlaying = false;
-        discIcon.classList.remove('animate-spin-slow');
-        musicLabel.innerText = "Play Música";
-      } else {
-        audio.play().then(() => {
-          isPlaying = true;
-          discIcon.classList.add('animate-spin-slow');
-          musicLabel.innerText = "Pausar";
-        }).catch(e => console.log("Audio play blocked", e));
-      }
-    }
-
-    // Los navegadores móviles bloquean sonido automático sin interacción previa;
-    // este listener arranca el tema al primer toque en la pantalla
-    function tryAutoplay() {
-      if (!hasInteracted && !isPlaying) {
-        hasInteracted = true;
-        audio.play().then(() => {
-          isPlaying = true;
-          discIcon.classList.add('animate-spin-slow');
-          musicLabel.innerText = "Pausar";
-        }).catch(() => {});
-      }
-    }
-
-    // Sumar nuevos recuerdos al collage
-    document.addEventListener("DOMContentLoaded", function() {
-      const memoriesData = {{ memories|tojson }};
-      const wall = document.getElementById('collageWall');
-      if (memoriesData && memoriesData.length > 0 && wall) {
-        memoriesData.forEach((m, idx) => {
-          if (m.photo) {
-            const img = document.createElement('img');
-            img.src = m.photo;
-            img.className = 'collage-tile';
-            img.style.animationDelay = `-${(idx * 2) % 10}s`;
-            wall.prepend(img);
-          }
-        });
-      }
-    });
-
-    let currentMemory = null;
-    function openDetailModal(memory) {
-      currentMemory = memory;
-      document.getElementById('detailTitle').innerText = memory.title;
-      document.getElementById('detailDate').innerText = memory.date;
-      document.getElementById('detailStory').innerText = memory.story || 'Sin historia añadida.';
-
-      const photoContainer = document.getElementById('detailPhotoContainer');
-      const photoEl = document.getElementById('detailPhoto');
-      if (memory.photo) {
-        photoEl.src = memory.photo;
-        photoContainer.classList.remove('hidden');
-      } else {
-        photoContainer.classList.add('hidden');
-      }
-
-      document.getElementById('formDelete').action = '/delete/' + memory.id;
-      document.getElementById('modalDetail').classList.remove('hidden');
-    }
-
-    document.getElementById('btnEditMemory').addEventListener('click', () => {
-      if (!currentMemory) return;
-      document.getElementById('modalDetail').classList.add('hidden');
-      document.getElementById('editTitle').value = currentMemory.title;
-      document.getElementById('editDate').value = currentMemory.date;
-      document.getElementById('editStory').value = currentMemory.story || '';
-      document.getElementById('formEdit').action = '/edit/' + currentMemory.id;
-      document.getElementById('modalEdit').classList.remove('hidden');
-    });
-  </script>
-  {% endif %}
-</body>
-</html>
+        <button onclick="document.getElementById('modalAdd').classList.add('hidden')" class="text-
