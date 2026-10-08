@@ -7,53 +7,96 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
-    /* Ocultar scrollbar pero permitir scroll fluido */
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
     /* Línea horizontal central */
-    .horizontal-timeline-track {
-      position: relative;
-    }
-    .horizontal-timeline-track::before {
+    .horizontal-track::before {
       content: '';
       position: absolute;
       top: 50%;
-      left: 2rem;
-      right: 2rem;
+      left: 1.5rem;
+      right: 1.5rem;
       height: 2px;
-      background: linear-gradient(90deg, #ec4899, #8b5cf6, #3b82f6);
+      background: linear-gradient(90deg, #ec4899, #a855f7, #6366f1);
       transform: translateY(-50%);
       z-index: 0;
     }
+
+    /* Cuadrícula del collage total */
+    .bg-collage-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 14px;
+      width: 110vw;
+      height: 110vh;
+      margin-left: -5vw;
+      margin-top: -5vh;
+      transform: scale(1.02);
+      filter: blur(6px) brightness(0.40) saturate(1.25);
+      pointer-events: none;
+    }
+
+    /* Movimiento suave de respiración cinematográfica para cada baldosa */
+    @keyframes subtleDrift {
+      0%, 100% { transform: scale(1) translateY(0); }
+      50% { transform: scale(1.05) translateY(-5px); }
+    }
+    .collage-tile {
+      animation: subtleDrift 14s ease-in-out infinite alternate;
+      border-radius: 1.25rem;
+      overflow: hidden;
+      min-height: 220px;
+    }
+
+    /* Animación continua de acercar y alejar la foto en el visor */
+    @keyframes breathingZoom {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.09); }
+      100% { transform: scale(1); }
+    }
+    .animate-photo-zoom {
+      animation: breathingZoom 8s ease-in-out infinite alternate;
+    }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-pink-500 selection:text-white flex flex-col justify-between overflow-x-hidden">
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-pink-500 selection:text-white flex flex-col justify-between overflow-x-hidden relative">
+
+  <!-- FONDO: COLLAGE TOTAL CINEMATOGRÁFICO CON TUS FOTOS -->
+  <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+    <div id="collageWall" class="bg-collage-grid">
+      <div class="collage-tile bg-cover bg-center" style="background-image: url('/static/img/foto1.jpg');"></div>
+      <div class="collage-tile bg-cover bg-center" style="background-image: url('/static/img/foto2.jpg'); animation-delay: -2s;"></div>
+      <div class="collage-tile bg-cover bg-center" style="background-image: url('/static/img/foto3.jpg'); animation-delay: -4s;"></div>
+      <div class="collage-tile bg-cover bg-center" style="background-image: url('/static/img/foto4.jpg'); animation-delay: -6s;"></div>
+      <div class="collage-tile bg-cover bg-center" style="background-image: url('/static/img/foto5.jpg'); animation-delay: -8s;"></div>
+      <div class="collage-tile bg-cover bg-center" style="background-image: url('/static/img/foto6.jpg'); animation-delay: -10s;"></div>
+      <div class="collage-tile bg-cover bg-center" style="background-image: url('/static/img/foto7.jpg'); animation-delay: -12s;"></div>
+      <div class="collage-tile bg-cover bg-center" style="background-image: url('/static/img/foto8.jpg'); animation-delay: -14s;"></div>
+    </div>
+    <div class="absolute inset-0 bg-slate-950/75 mix-blend-multiply"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-slate-950/90"></div>
+  </div>
 
   {% if not logged_in %}
-  <!-- PANTALLA LOGIN -->
-  <div class="fixed inset-0 bg-slate-950/95 flex items-center justify-center p-6 z-50">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
-      <div class="w-16 h-16 mx-auto mb-4 bg-pink-500/10 text-pink-400 rounded-full flex items-center justify-center text-2xl shadow-inner border border-pink-500/20">
+  <!-- LOGIN -->
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-6">
+    <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl backdrop-blur-xl">
+      <div class="w-16 h-16 mx-auto mb-4 bg-pink-500/10 text-pink-400 rounded-full flex items-center justify-center text-2xl border border-pink-500/20">
         <i class="fas fa-heart animate-pulse"></i>
       </div>
       <h1 class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-400 mb-2">
         Enamorándome de ti
       </h1>
-      <p class="text-xs text-slate-400 mb-6">Nuestro viaje en el tiempo.</p>
+      <p class="text-xs text-slate-400 mb-6">Nuestro rincón en el tiempo.</p>
 
       {% if error %}
-        <p class="text-red-400 text-xs mb-4 bg-red-950/50 border border-red-800/50 py-2 px-3 rounded-xl">{{ error }}</p>
+        <p class="text-red-400 text-xs mb-4 bg-red-950/60 border border-red-800/50 py-2 px-3 rounded-xl">{{ error }}</p>
       {% endif %}
 
       <form action="/login" method="POST" class="space-y-4">
         <input type="password" name="password" required placeholder="Contraseña de pareja" 
-               class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-center text-sm text-white focus:outline-none focus:border-pink-500 placeholder-slate-600">
+               class="w-full bg-slate-950/90 border border-slate-800 rounded-2xl px-4 py-3 text-center text-sm text-white focus:outline-none focus:border-pink-500 placeholder-slate-600">
         <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 py-3.5 rounded-2xl font-semibold text-white shadow-lg shadow-pink-500/20 active:scale-95 transition-all">
           Abrir historia
         </button>
@@ -62,108 +105,107 @@
   </div>
   {% else %}
 
-  <!-- ENCABEZADO Y CONTADOR -->
-  <header class="pt-8 pb-4 px-4 text-center">
-    <h1 class="text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-400">
-      Enamorándome de ti
-    </h1>
-    <p class="text-[10px] text-pink-400 font-semibold tracking-widest uppercase mt-0.5">Tiempo transcurrido juntos</p>
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="relative z-10 flex flex-col justify-between min-h-screen">
 
-    <div class="grid grid-cols-4 gap-2 max-w-xs mx-auto mt-4">
-      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2 shadow-md">
-        <span id="days" class="text-lg font-black text-pink-400">0</span>
-        <span class="block text-[8px] text-slate-400 uppercase font-semibold">Días</span>
-      </div>
-      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2 shadow-md">
-        <span id="hours" class="text-lg font-black text-purple-400">0</span>
-        <span class="block text-[8px] text-slate-400 uppercase font-semibold">Horas</span>
-      </div>
-      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2 shadow-md">
-        <span id="minutes" class="text-lg font-black text-indigo-400">0</span>
-        <span class="block text-[8px] text-slate-400 uppercase font-semibold">Min</span>
-      </div>
-      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2 shadow-md">
-        <span id="seconds" class="text-lg font-black text-slate-200">0</span>
-        <span class="block text-[8px] text-slate-400 uppercase font-semibold">Seg</span>
-      </div>
-    </div>
-  </header>
+    <!-- CABECERA CON CONTADOR -->
+    <header class="pt-8 pb-4 px-4 text-center">
+      <h1 class="text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-400">
+        Enamorándome de ti
+      </h1>
+      <p class="text-[10px] text-pink-400 font-semibold tracking-widest uppercase mt-0.5">Tiempo transcurrido juntos</p>
 
-  <!-- LÍNEA DE TIEMPO HORIZONTAL -->
-  <main class="my-auto py-12 px-6">
-    <div class="text-center mb-6">
-      <span class="text-xs text-slate-400 flex items-center justify-center gap-2">
-        <i class="fas fa-arrows-alt-h text-pink-400 animate-pulse"></i> Desliza horizontalmente y toca una fecha
-      </span>
-    </div>
-
-    {% if not memories %}
-      <div class="text-center py-10 text-slate-500">
-        <i class="far fa-heart text-4xl mb-3 text-pink-500/30"></i>
-        <p class="text-sm">Aún no hay momentos registrados.<br>Toca el botón <b>+</b> para añadir el primero.</p>
-      </div>
-    {% endif %}
-
-    <!-- Contenedor con Scroll Horizontal -->
-    <div class="overflow-x-auto no-scrollbar py-8 px-8 flex items-center horizontal-timeline-track space-x-12 cursor-grab active:cursor-grabbing">
-      {% for memory in memories %}
-        <div class="flex-shrink-0 flex flex-col items-center relative z-10 group">
-          
-          <!-- FECHA RESALTADA EN ROSA (BOTÓN INTERACTIVO) -->
-          <button onclick='openDetailModal({{ memory|tojson }})' 
-                  class="mb-3 px-3 py-1 rounded-full bg-pink-500/15 border border-pink-500/40 text-pink-400 hover:bg-pink-500 hover:text-white transition-all shadow-md shadow-pink-500/10 font-bold text-xs tracking-wider group-hover:scale-110">
-            {{ memory.date }}
-          </button>
-
-          <!-- ÍCONO PEQUEÑO EN LA LÍNEA -->
-          <button onclick='openDetailModal({{ memory|tojson }})' 
-                  class="w-5 h-5 rounded-full bg-pink-500 border-2 border-slate-950 ring-4 ring-slate-900 group-hover:ring-pink-500/50 group-hover:scale-125 transition-all flex items-center justify-center shadow-lg">
-          </button>
-
-          <!-- TÍTULO CORTO ABAJO -->
-          <span class="mt-3 text-[11px] font-medium text-slate-300 max-w-[100px] truncate text-center group-hover:text-pink-300">
-            {{ memory.title }}
-          </span>
+      <div class="grid grid-cols-4 gap-2 max-w-xs mx-auto mt-4">
+        <div class="bg-slate-900/80 backdrop-blur-md border border-slate-800/80 rounded-2xl p-2 shadow-md">
+          <span id="days" class="text-lg font-black text-pink-400">0</span>
+          <span class="block text-[8px] text-slate-400 uppercase font-semibold">Días</span>
         </div>
-      {% endfor %}
-    </div>
-  </main>
+        <div class="bg-slate-900/80 backdrop-blur-md border border-slate-800/80 rounded-2xl p-2 shadow-md">
+          <span id="hours" class="text-lg font-black text-purple-400">0</span>
+          <span class="block text-[8px] text-slate-400 uppercase font-semibold">Horas</span>
+        </div>
+        <div class="bg-slate-900/80 backdrop-blur-md border border-slate-800/80 rounded-2xl p-2 shadow-md">
+          <span id="minutes" class="text-lg font-black text-indigo-400">0</span>
+          <span class="block text-[8px] text-slate-400 uppercase font-semibold">Min</span>
+        </div>
+        <div class="bg-slate-900/80 backdrop-blur-md border border-slate-800/80 rounded-2xl p-2 shadow-md">
+          <span id="seconds" class="text-lg font-black text-slate-200">0</span>
+          <span class="block text-[8px] text-slate-400 uppercase font-semibold">Seg</span>
+        </div>
+      </div>
+    </header>
 
-  <!-- BOTÓN FLOTANTE (+) PARA AGREGAR RECUERDO -->
+    <!-- LÍNEA DE TIEMPO HORIZONTAL -->
+    <main class="my-auto py-10 px-6">
+      <div class="text-center mb-6">
+        <span class="text-[11px] text-pink-300/80 tracking-wide font-medium bg-slate-900/60 px-4 py-1.5 rounded-full border border-slate-800 backdrop-blur-md inline-flex items-center gap-2">
+          <i class="fas fa-hand-pointer text-pink-400 animate-bounce"></i> Pasa el mouse o toca una fecha rosa
+        </span>
+      </div>
+
+      {% if not memories %}
+        <div class="text-center py-10 text-slate-400/80">
+          <i class="far fa-heart text-4xl mb-3 text-pink-500/40"></i>
+          <p class="text-sm">Aún no hay momentos registrados.<br>Toca el botón <b>+</b> para subir el primero.</p>
+        </div>
+      {% endif %}
+
+      <!-- Pista horizontal deslizable -->
+      <div class="overflow-x-auto no-scrollbar py-10 px-8 flex items-center horizontal-track space-x-14 cursor-grab active:cursor-grabbing">
+        {% for memory in memories %}
+          <div class="flex-shrink-0 flex flex-col items-center relative z-10 group cursor-pointer"
+               onmouseenter='openDetailModal({{ memory|tojson }})'
+               onclick='openDetailModal({{ memory|tojson }})'>
+            
+            <!-- FECHA RESALTADA EN ROSA -->
+            <button class="mb-3 px-3.5 py-1 rounded-full bg-pink-500/20 border border-pink-500/60 text-pink-300 group-hover:bg-pink-500 group-hover:text-white transition-all duration-300 shadow-lg shadow-pink-500/20 font-bold text-xs tracking-wider transform group-hover:scale-110">
+              {{ memory.date }}
+            </button>
+
+            <!-- NODO EN LA LÍNEA -->
+            <div class="w-4 h-4 rounded-full bg-pink-500 border-2 border-slate-950 ring-4 ring-pink-500/30 group-hover:ring-pink-500/80 group-hover:scale-150 transition-all duration-300 shadow-md"></div>
+
+            <!-- TÍTULO -->
+            <span class="mt-3 text-[11px] font-semibold text-slate-300 max-w-[110px] truncate text-center group-hover:text-pink-300 transition-colors">
+              {{ memory.title }}
+            </span>
+          </div>
+        {% endfor %}
+      </div>
+    </main>
+
+    <div class="pb-10"></div>
+  </div>
+
+  <!-- BOTÓN FLOTANTE (+) -->
   <button onclick="document.getElementById('modalAdd').classList.remove('hidden')" 
-          class="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center text-white shadow-xl shadow-pink-500/30 active:scale-95 transition-all z-40">
+          class="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center text-white shadow-2xl shadow-pink-500/40 active:scale-95 transition-all z-40">
     <i class="fas fa-plus text-xl"></i>
   </button>
 
-  <!-- MODAL 1: DETALLE DEL RECUERDO (FOTO, FECHA, HISTORIA Y ACCIONES) -->
+  <!-- MODAL: VISOR DE DETALLE (ZOOM CINEMATOGRÁFICO) -->
   <div id="modalDetail" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl relative animate-fade-in">
+    <div class="bg-slate-900/95 border border-slate-800 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl relative">
       
-      <!-- Botón Cerrar -->
       <button onclick="document.getElementById('modalDetail').classList.add('hidden')" class="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-slate-950/70 text-slate-300 flex items-center justify-center hover:text-white">
-        <i class="fas fa-times"></i>
+        <i class="fas fa-times text-xs"></i>
       </button>
 
-      <!-- Foto -->
-      <div id="detailPhotoContainer" class="w-full h-64 bg-slate-950 overflow-hidden hidden">
-        <img id="detailPhoto" src="" class="w-full h-full object-cover">
+      <div id="detailPhotoContainer" class="w-full h-72 bg-slate-950 overflow-hidden relative hidden">
+        <img id="detailPhoto" src="" class="w-full h-full object-cover animate-photo-zoom">
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
       </div>
 
-      <!-- Contenido -->
-      <div class="p-5">
+      <div class="p-5 relative">
         <div class="flex items-center justify-between mb-2">
           <span id="detailDate" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-400 border border-pink-500/30"></span>
           
-          <!-- Acciones: Editar y Eliminar -->
           <div class="flex items-center space-x-2">
-            <!-- Botón Editar -->
-            <button id="btnEditMemory" class="text-slate-400 hover:text-pink-400 text-xs px-2 py-1 rounded-lg bg-slate-800">
+            <button id="btnEditMemory" class="text-slate-400 hover:text-pink-400 text-xs px-2.5 py-1 rounded-lg bg-slate-800">
               <i class="fas fa-pen mr-1"></i> Editar
             </button>
-            
-            <!-- Botón Eliminar -->
             <form id="formDelete" method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar este recuerdo?');">
-              <button type="submit" class="text-slate-400 hover:text-red-400 text-xs px-2 py-1 rounded-lg bg-slate-800">
+              <button type="submit" class="text-slate-400 hover:text-red-400 text-xs px-2.5 py-1 rounded-lg bg-slate-800">
                 <i class="fas fa-trash-alt"></i>
               </button>
             </form>
@@ -171,12 +213,12 @@
         </div>
 
         <h2 id="detailTitle" class="text-lg font-bold text-white mb-2"></h2>
-        <p id="detailStory" class="text-slate-300 text-xs leading-relaxed whitespace-pre-line max-h-40 overflow-y-auto pr-1"></p>
+        <p id="detailStory" class="text-slate-300 text-xs leading-relaxed whitespace-pre-line max-h-36 overflow-y-auto pr-1"></p>
       </div>
     </div>
   </div>
 
-  <!-- MODAL 2: AGREGAR RECUERDO -->
+  <!-- MODAL: AGREGAR NUEVO MOMENTO -->
   <div id="modalAdd" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden">
     <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl">
       <div class="flex justify-between items-center mb-4">
@@ -214,7 +256,7 @@
     </div>
   </div>
 
-  <!-- MODAL 3: MODIFICAR / EDITAR RECUERDO -->
+  <!-- MODAL: EDITAR MOMENTO -->
   <div id="modalEdit" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden">
     <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl">
       <div class="flex justify-between items-center mb-4">
@@ -253,7 +295,7 @@
   </div>
 
   <script>
-    // Contador Infinito
+    // Contador
     const START_DATE = new Date('2026-06-19T16:37:00');
 
     function updateCounter() {
@@ -275,6 +317,23 @@
     }
     setInterval(updateCounter, 1000);
     updateCounter();
+
+    // Sumar fotos nuevas de recuerdos automáticamente al collage de fondo
+    document.addEventListener("DOMContentLoaded", function() {
+      const memoriesData = {{ memories|tojson }};
+      const wall = document.getElementById('collageWall');
+      if (memoriesData && memoriesData.length > 0 && wall) {
+        memoriesData.forEach((m, idx) => {
+          if (m.photo) {
+            const tile = document.createElement('div');
+            tile.className = 'collage-tile bg-cover bg-center';
+            tile.style.backgroundImage = `url('${m.photo}')`;
+            tile.style.animationDelay = `-${(idx * 2.5) % 12}s`;
+            wall.prepend(tile);
+          }
+        });
+      }
+    });
 
     // Abrir Modal de Detalle
     let currentMemory = null;
