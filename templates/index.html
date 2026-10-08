@@ -1,432 +1,498 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enamorándome de ti</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <style>
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestra Historia de Amor ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff4d6d;
+            --primary-hover: #ff758f;
+            --bg-color: #fff0f3;
+            --card-bg: #ffffff;
+            --text-main: #590d22;
+            --text-muted: #a4133c;
+        }
 
-    /* Línea horizontal central */
-    .horizontal-track::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 1.5rem;
-      right: 1.5rem;
-      height: 2px;
-      background: linear-gradient(90deg, #ec4899, #a855f7, #6366f1);
-      transform: translateY(-50%);
-      z-index: 0;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    /* Mosaico total de fondo */
-    .bg-collage-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      width: 104vw;
-      height: 104vh;
-      margin-left: -2vw;
-      margin-top: -2vh;
-      filter: blur(5px) brightness(0.60) saturate(1.2);
-      pointer-events: none;
-    }
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-    @media (max-width: 768px) {
-      .bg-collage-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
+        /* Música flotante */
+        .music-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.4);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+        .music-toggle:hover {
+            transform: scale(1.1);
+        }
 
-    @keyframes subtleDrift {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.08); }
-    }
-    .collage-tile {
-      animation: subtleDrift 10s ease-in-out infinite alternate;
-      border-radius: 1.25rem;
-      overflow: hidden;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+        /* Pantalla Login */
+        .login-box {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            text-align: center;
+            margin-top: 15vh;
+            max-width: 400px;
+            width: 90%;
+        }
 
-    /* Animación de acercar y alejar foto */
-    @keyframes breathingZoom {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.08); }
-      100% { transform: scale(1); }
-    }
-    .animate-photo-zoom {
-      animation: breathingZoom 8s ease-in-out infinite alternate;
-    }
+        .login-box h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.8rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
 
-    /* Giro de disco de música cuando suena */
-    @keyframes spinSlow {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-    .animate-spin-slow {
-      animation: spinSlow 5s linear infinite;
-    }
-  </style>
+        .login-box input {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 2px solid #ffccd5;
+            border-radius: 10px;
+            font-size: 1rem;
+            text-align: center;
+            outline: none;
+        }
+
+        .login-box input:focus {
+            border-color: var(--primary);
+        }
+
+        .login-box button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        .login-box button:hover {
+            background: var(--primary-hover);
+        }
+
+        /* Cabecera */
+        header {
+            text-align: center;
+            padding: 40px 20px 20px;
+            width: 100%;
+        }
+
+        header h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3.5rem;
+            color: var(--primary);
+            text-shadow: 2px 2px 4px rgba(255,77,109,0.15);
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-top: 5px;
+        }
+
+        /* Botón Agregar Recuerdo */
+        .btn-add-memory {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(255,77,109,0.3);
+            transition: transform 0.2s;
+        }
+        .btn-add-memory:hover {
+            transform: scale(1.05);
+        }
+
+        /* Contenedor Timeline */
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            width: 90%;
+            margin: 20px auto 60px;
+            padding: 20px 0;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background-color: #ffccd5;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -2px;
+            border-radius: 2px;
+        }
+
+        .memory-card {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+        }
+
+        .memory-card:nth-child(odd) {
+            left: 0;
+        }
+
+        .memory-card:nth-child(even) {
+            left: 50%;
+        }
+
+        .memory-card::after {
+            content: '❤️';
+            position: absolute;
+            top: 20px;
+            right: -13px;
+            z-index: 1;
+            font-size: 18px;
+        }
+
+        .memory-card:nth-child(even)::after {
+            left: -13px;
+        }
+
+        .card-content {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.06);
+            border: 1px solid #ffccd5;
+            transition: transform 0.2s ease;
+        }
+        .card-content:hover {
+            transform: translateY(-3px);
+        }
+
+        .card-content h3 {
+            color: var(--primary);
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+        }
+
+        .card-content .date {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .card-media {
+            width: 100%;
+            border-radius: 12px;
+            margin: 10px 0;
+            max-height: 280px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .card-content p {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #4a4a4a;
+            white-space: pre-wrap;
+            margin-bottom: 15px;
+        }
+
+        /* Botón de Compartir */
+        .btn-share {
+            background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(255, 117, 140, 0.3);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-share:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(255, 117, 140, 0.45);
+        }
+
+        .card-actions {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid #ffe5ec;
+            padding-top: 10px;
+        }
+
+        .btn-delete {
+            background: transparent;
+            color: #ff4d6d;
+            border: 1px solid #ffccd5;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .btn-delete:hover {
+            background: #ffe5ec;
+        }
+
+        /* Modal para agregar */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 480px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .modal-content h2 {
+            font-family: 'Dancing Script', cursive;
+            color: var(--primary);
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .modal-content input, .modal-content textarea {
+            width: 100%;
+            padding: 10px 12px;
+            margin-bottom: 12px;
+            border: 1.5px solid #ffccd5;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+        .modal-content button[type="submit"] {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            width: 100%;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .modal-close {
+            background: transparent;
+            border: none;
+            float: right;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        /* Responsivo en móviles */
+        @media screen and (max-width: 600px) {
+            .timeline::after {
+                left: 31px;
+            }
+            .memory-card {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 15px;
+            }
+            .memory-card:nth-child(even) {
+                left: 0%;
+            }
+            .memory-card::after {
+                left: 18px !important;
+            }
+        }
+    </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-pink-500 selection:text-white flex flex-col justify-between overflow-x-hidden relative" onclick="tryAutoplay()">
+<body>
 
- <!-- AUDIO DE FONDO -->
-  <audio id="bgMusic" loop preload="auto">
-    <source src="{{ url_for('static', filename='img/musica.mp3') }}" type="audio/mpeg">
-  </audio>
+    <!-- Música de fondo oculta con botón flotante -->
+    <audio id="bgMusic" loop>
+        <source src="/static/img/musica.mp3" type="audio/mpeg">
+    </audio>
+    <button class="music-toggle" id="musicBtn" onclick="toggleMusic()">🎵</button>
 
-  <!-- BOTÓN FLOTANTE DE CONTROL DE MÚSICA (ARRIBA A LA IZQUIERDA) -->
-  <button id="musicToggleBtn" onclick="event.stopPropagation(); toggleMusic();" 
-          class="fixed top-5 left-5 z-40 bg-slate-900/80 hover:bg-slate-800 text-pink-400 border border-pink-500/30 backdrop-blur-md px-3.5 py-2 rounded-full flex items-center gap-2.5 shadow-xl transition-all active:scale-95">
-    <div id="discIcon" class="w-6 h-6 rounded-full bg-pink-500/20 flex items-center justify-center text-xs">
-      <i class="fas fa-compact-disc"></i>
-    </div>
-    <span id="musicLabel" class="text-[11px] font-semibold tracking-wide text-slate-200">Play Música</span>
-  </button>
-
-  <!-- FONDO: COLLAGE TOTAL -->
-  <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-    <div id="collageWall" class="bg-collage-grid">
-      <img src="{{ url_for('static', filename='img/foto1.jpg') }}" class="collage-tile" alt="Fondo 1">
-      <img src="{{ url_for('static', filename='img/foto2.jpg') }}" class="collage-tile" style="animation-delay: -2s;" alt="Fondo 2">
-      <img src="{{ url_for('static', filename='img/foto3.jpg') }}" class="collage-tile" style="animation-delay: -4s;" alt="Fondo 3">
-      <img src="{{ url_for('static', filename='img/foto4.jpg') }}" class="collage-tile" style="animation-delay: -6s;" alt="Fondo 4">
-      <img src="{{ url_for('static', filename='img/foto5.jpg') }}" class="collage-tile" style="animation-delay: -8s;" alt="Fondo 5">
-      <img src="{{ url_for('static', filename='img/foto6.jpg') }}" class="collage-tile" style="animation-delay: -10s;" alt="Fondo 6">
-      <img src="{{ url_for('static', filename='img/foto7.jpg') }}" class="collage-tile" style="animation-delay: -12s;" alt="Fondo 7">
-      <img src="{{ url_for('static', filename='img/foto8.jpg') }}" class="collage-tile" style="animation-delay: -14s;" alt="Fondo 8">
-    </div>
-    <div class="absolute inset-0 bg-slate-950/50 backdrop-blur-[1px]"></div>
-  </div>
-
-  {% if not logged_in %}
-  <!-- LOGIN -->
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-6">
-    <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl backdrop-blur-xl">
-      <div class="w-16 h-16 mx-auto mb-4 bg-pink-500/10 text-pink-400 rounded-full flex items-center justify-center text-2xl border border-pink-500/20">
-        <i class="fas fa-heart animate-pulse"></i>
-      </div>
-      <h1 class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-400 mb-2">
-        Enamorándome de ti
-      </h1>
-      <p class="text-xs text-slate-400 mb-6">Nuestro rincón en el tiempo.</p>
-
-      {% if error %}
-        <p class="text-red-400 text-xs mb-4 bg-red-950/60 border border-red-800/50 py-2 px-3 rounded-xl">{{ error }}</p>
-      {% endif %}
-
-      <form action="/login" method="POST" class="space-y-4">
-        <input type="password" name="password" required placeholder="Contraseña de pareja" 
-               class="w-full bg-slate-950/90 border border-slate-800 rounded-2xl px-4 py-3 text-center text-sm text-white focus:outline-none focus:border-pink-500 placeholder-slate-600">
-        <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 py-3.5 rounded-2xl font-semibold text-white shadow-lg shadow-pink-500/20 active:scale-95 transition-all">
-          Abrir historia
-        </button>
-      </form>
-    </div>
-  </div>
-  {% else %}
-
-  <!-- CONTENIDO PRINCIPAL -->
-  <div class="relative z-10 flex flex-col justify-between min-h-screen">
-
-    <!-- CABECERA CON CONTADOR -->
-    <header class="pt-8 pb-4 px-4 text-center">
-      <h1 class="text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-400">
-        Enamorándome de ti
-      </h1>
-      <p class="text-[10px] text-pink-400 font-semibold tracking-widest uppercase mt-0.5">Tiempo transcurrido juntos</p>
-
-      <div class="grid grid-cols-4 gap-2 max-w-xs mx-auto mt-4">
-        <div class="bg-slate-900/80 backdrop-blur-md border border-slate-800/80 rounded-2xl p-2 shadow-md">
-          <span id="days" class="text-lg font-black text-pink-400">0</span>
-          <span class="block text-[8px] text-slate-400 uppercase font-semibold">Días</span>
-        </div>
-        <div class="bg-slate-900/80 backdrop-blur-md border border-slate-800/80 rounded-2xl p-2 shadow-md">
-          <span id="hours" class="text-lg font-black text-purple-400">0</span>
-          <span class="block text-[8px] text-slate-400 uppercase font-semibold">Horas</span>
-        </div>
-        <div class="bg-slate-900/80 backdrop-blur-md border border-slate-800/80 rounded-2xl p-2 shadow-md">
-          <span id="minutes" class="text-lg font-black text-indigo-400">0</span>
-          <span class="block text-[8px] text-slate-400 uppercase font-semibold">Min</span>
-        </div>
-        <div class="bg-slate-900/80 backdrop-blur-md border border-slate-800/80 rounded-2xl p-2 shadow-md">
-          <span id="seconds" class="text-lg font-black text-slate-200">0</span>
-          <span class="block text-[8px] text-slate-400 uppercase font-semibold">Seg</span>
-        </div>
-      </div>
-    </header>
-
-    <!-- LÍNEA DE TIEMPO HORIZONTAL -->
-    <main class="my-auto py-10 px-6">
-      <div class="text-center mb-6">
-        <span class="text-[11px] text-pink-300/90 tracking-wide font-medium bg-slate-900/70 px-4 py-1.5 rounded-full border border-pink-500/30 backdrop-blur-md inline-flex items-center gap-2 shadow-lg">
-          <i class="fas fa-hand-pointer text-pink-400 animate-bounce"></i> Pasa el mouse o toca una fecha rosa
-        </span>
-      </div>
-
-      {% if not memories %}
-        <div class="text-center py-10 text-slate-200">
-          <i class="far fa-heart text-4xl mb-3 text-pink-500 animate-pulse"></i>
-          <p class="text-sm font-semibold">Aún no hay momentos registrados.<br>Toca el botón <b>+</b> para subir el primero.</p>
-        </div>
-      {% endif %}
-
-      <!-- Pista horizontal -->
-      <div class="overflow-x-auto no-scrollbar py-10 px-8 flex items-center horizontal-track space-x-14 cursor-grab active:cursor-grabbing">
-        {% for memory in memories %}
-          <div class="flex-shrink-0 flex flex-col items-center relative z-10 group cursor-pointer"
-               onmouseenter='openDetailModal({{ memory|tojson }})'
-               onclick='openDetailModal({{ memory|tojson }})'>
-            
-            <button class="mb-3 px-3.5 py-1 rounded-full bg-pink-500/30 border border-pink-500 text-pink-200 group-hover:bg-pink-500 group-hover:text-white transition-all duration-300 shadow-lg shadow-pink-500/30 font-bold text-xs tracking-wider transform group-hover:scale-110">
-              {{ memory.date }}
-            </button>
-
-            <div class="w-4 h-4 rounded-full bg-pink-500 border-2 border-slate-950 ring-4 ring-pink-500/40 group-hover:ring-pink-500/90 group-hover:scale-150 transition-all duration-300 shadow-md"></div>
-
-            <span class="mt-3 text-[11px] font-semibold text-slate-200 max-w-[110px] truncate text-center group-hover:text-pink-300 transition-colors">
-              {{ memory.title }}
-            </span>
-          </div>
-        {% endfor %}
-      </div>
-    </main>
-
-    <div class="pb-10"></div>
-  </div>
-
-  <!-- BOTÓN FLOTANTE (+) -->
-  <button onclick="document.getElementById('modalAdd').classList.remove('hidden')" 
-          class="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center text-white shadow-2xl shadow-pink-500/40 active:scale-95 transition-all z-40">
-    <i class="fas fa-plus text-xl"></i>
-  </button>
-
-  <!-- MODAL: DETALLE -->
-  <div id="modalDetail" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900/95 border border-slate-800 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl relative">
-      <button onclick="document.getElementById('modalDetail').classList.add('hidden')" class="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-slate-950/70 text-slate-300 flex items-center justify-center hover:text-white">
-        <i class="fas fa-times text-xs"></i>
-      </button>
-
-      <div id="detailPhotoContainer" class="w-full h-72 bg-slate-950 overflow-hidden relative hidden">
-        <img id="detailPhoto" src="" class="w-full h-full object-cover animate-photo-zoom">
-        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
-      </div>
-
-      <div class="p-5 relative">
-        <div class="flex items-center justify-between mb-2">
-          <span id="detailDate" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-400 border border-pink-500/30"></span>
-          
-          <div class="flex items-center space-x-2">
-            <button id="btnEditMemory" class="text-slate-400 hover:text-pink-400 text-xs px-2.5 py-1 rounded-lg bg-slate-800">
-              <i class="fas fa-pen mr-1"></i> Editar
-            </button>
-            <form id="formDelete" method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar este recuerdo?');">
-              <button type="submit" class="text-slate-400 hover:text-red-400 text-xs px-2.5 py-1 rounded-lg bg-slate-800">
-                <i class="fas fa-trash-alt"></i>
-              </button>
+    {% if not logged_in %}
+        <div class="login-box">
+            <h1>Nuestra Historia</h1>
+            <p>Escribe nuestra clave para entrar ❤️</p>
+            {% if error %}
+                <p style="color: red; font-size: 0.9rem; margin-top: 10px;">{{ error }}</p>
+            {% endif %}
+            <form action="/login" methods="POST" method="POST">
+                <input type="password" name="password" placeholder="Tu contraseña secreta" required>
+                <button type="submit">Entrar a nuestros recuerdos</button>
             </form>
-          </div>
+        </div>
+    {% else %}
+        <header>
+            <h1>Enamorándome de Ti</h1>
+            <p>Cada día, cada momento, una memoria eterna ✨</p>
+            <button class="btn-add-memory" onclick="openModal()">+ Agregar Nuevo Momento</button>
+        </header>
+
+        <div class="timeline">
+            {% for memory in memories %}
+                <div class="memory-card">
+                    <div class="card-content">
+                        <h3>{{ memory.title }}</h3>
+                        <span class="date">📅 {{ memory.date }}</span>
+
+                        {% if memory.photo %}
+                            <!-- REPRODUCE VIDEO SI ES VIDEO, O IMAGEN SI ES IMAGEN -->
+                            {% if 'data:video' in memory.photo %}
+                                <video class="card-media" controls playsinline>
+                                    <source src="{{ memory.photo }}">
+                                    Tu navegador no soporta el formato de video.
+                                </video>
+                            {% else %}
+                                <img src="{{ memory.photo }}" alt="{{ memory.title }}" class="card-media">
+                            {% endif %}
+                        {% endif %}
+
+                        <p>{{ memory.story }}</p>
+
+                        <div class="card-actions">
+                            <!-- BOTÓN DE COMPARTIR -->
+                            <button type="button" class="btn-share" onclick="compartirRecuerdo('{{ memory.title }}', '{{ memory.date }}')">
+                                🔗 Compartir
+                            </button>
+
+                            <form action="/delete/{{ memory.id }}" method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar este recuerdo?');">
+                                <button type="submit" class="btn-delete">Eliminar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
 
-        <h2 id="detailTitle" class="text-lg font-bold text-white mb-2"></h2>
-        <p id="detailStory" class="text-slate-300 text-xs leading-relaxed whitespace-pre-line max-h-36 overflow-y-auto pr-1"></p>
-      </div>
-    </div>
-  </div>
+        <!-- Modal para agregar recuerdo (Fotos o Videos) -->
+        <div class="modal" id="memoryModal">
+            <div class="modal-content">
+                <button type="button" class="modal-close" onclick="closeModal()">✕</button>
+                <h2>Nuevo Momento</h2>
+                <form action="/add" method="POST" enctype="multipart/form-data">
+                    <label>Título del momento:</label>
+                    <input type="text" name="title" placeholder="Ej. Nuestro primer beso" required>
 
-  <!-- MODAL: AGREGAR -->
-  <div id="modalAdd" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden">
-    <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-bold text-white">Nuevo Momento</h3>
-        <button onclick="document.getElementById('modalAdd').classList.add('hidden')" class="text-slate-400 hover:text-white p-2">
-          <i class="fas fa-times text-xl"></i>
-        </button>
-      </div>
+                    <label>Fecha:</label>
+                    <input type="date" name="date_event" required>
 
-      <form action="/add" method="POST" enctype="multipart/form-data" class="space-y-4">
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Título del momento</label>
-          <input type="text" name="title" required placeholder="Ej. El día que fuimos por nieve..." 
-                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">
+                    <label>Nuestra historia:</label>
+                    <textarea name="story" rows="4" placeholder="¿Qué sentiste ese día?"></textarea>
+
+                    <label>Foto o Video del recuerdo:</label>
+                    <!-- Permite seleccionar tanto fotos como videos -->
+                    <input type="file" name="photo" accept="image/*,video/mp4,video/webm,video/quicktime">
+
+                    <button type="submit">Guardar en la eternidad ❤️</button>
+                </form>
+            </div>
         </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Fecha</label>
-          <input type="date" name="date_event" required 
-                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Foto especial</label>
-          <input type="file" name="photo" accept="image/*" 
-                 class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-pink-500/10 file:text-pink-400">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Anécdota / Historia</label>
-          <textarea name="story" rows="3" placeholder="¿Qué sentiste ese día?" 
-                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500"></textarea>
-        </div>
-        <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 py-3 rounded-2xl font-semibold text-white shadow-lg transition-all">
-          Guardar recuerdo
-        </button>
-      </form>
-    </div>
-  </div>
+    {% endif %}
 
-  <!-- MODAL: EDITAR -->
-  <div id="modalEdit" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden">
-    <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-bold text-white">Editar Momento</h3>
-        <button onclick="document.getElementById('modalEdit').classList.add('hidden')" class="text-slate-400 hover:text-white p-2">
-          <i class="fas fa-times text-xl"></i>
-        </button>
-      </div>
+    <script>
+        // Control de música
+        const music = document.getElementById('bgMusic');
+        const musicBtn = document.getElementById('musicBtn');
+        let isPlaying = false;
 
-      <form id="formEdit" method="POST" enctype="multipart/form-data" class="space-y-4">
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Título del momento</label>
-          <input type="text" id="editTitle" name="title" required 
-                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Fecha</label>
-          <input type="date" id="editDate" name="date_event" required 
-                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Cambiar Foto (opcional)</label>
-          <input type="file" name="photo" accept="image/*" 
-                 class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-pink-500/10 file:text-pink-400">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Anécdota / Historia</label>
-          <textarea id="editStory" name="story" rows="3" 
-                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500"></textarea>
-        </div>
-        <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 py-3 rounded-2xl font-semibold text-white shadow-lg transition-all">
-          Actualizar recuerdo
-        </button>
-      </form>
-    </div>
-  </div>
+        function toggleMusic() {
+            if (isPlaying) {
+                music.pause();
+                musicBtn.innerText = '🔇';
+            } else {
+                music.play();
+                musicBtn.innerText = '🎵';
+            }
+            isPlaying = !isPlaying;
+        }
 
-  <script>
-    // Contador
-    const START_DATE = new Date('2026-06-19T16:37:00');
+        // Modales
+        function openModal() {
+            document.getElementById('memoryModal').style.display = 'flex';
+        }
+        function closeModal() {
+            document.getElementById('memoryModal').style.display = 'none';
+        }
 
-    function updateCounter() {
-      const now = new Date();
-      const diffMs = now - START_DATE;
+        // Cierra el modal si se toca fuera de él
+        window.onclick = function(event) {
+            const modal = document.getElementById('memoryModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
 
-      if (diffMs > 0) {
-        const totalSeconds = Math.floor(diffMs / 1000);
-        const days = Math.floor(totalSeconds / (3600 * 24));
-        const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = Math.floor(totalSeconds % 60);
+        // COMPARTIR EN REDES SOCIALES
+        function compartirRecuerdo(titulo, fecha) {
+            const texto = `❤️ Recordando juntos: "${titulo}" (${fecha}) ✨`;
+            const url = window.location.origin;
 
-        document.getElementById('days').innerText = days;
-        document.getElementById('hours').innerText = hours;
-        document.getElementById('minutes').innerText = minutes;
-        document.getElementById('seconds').innerText = seconds;
-      }
-    }
-    setInterval(updateCounter, 1000);
-    updateCounter();
-
-    // Control de Audio
-    const audio = document.getElementById('bgMusic');
-    const discIcon = document.getElementById('discIcon');
-    const musicLabel = document.getElementById('musicLabel');
-    let isPlaying = false;
-    let hasInteracted = false;
-
-    // Volumen suave al 40% para que sea música ambiental
-    audio.volume = 0.4;
-
-    function toggleMusic() {
-      if (isPlaying) {
-        audio.pause();
-        isPlaying = false;
-        discIcon.classList.remove('animate-spin-slow');
-        musicLabel.innerText = "Play Música";
-      } else {
-        audio.play().then(() => {
-          isPlaying = true;
-          discIcon.classList.add('animate-spin-slow');
-          musicLabel.innerText = "Pausar";
-        }).catch(e => console.log("Audio play blocked", e));
-      }
-    }
-
-    // Los navegadores móviles bloquean sonido automático sin interacción previa;
-    // este listener arranca el tema al primer toque en la pantalla
-    function tryAutoplay() {
-      if (!hasInteracted && !isPlaying) {
-        hasInteracted = true;
-        audio.play().then(() => {
-          isPlaying = true;
-          discIcon.classList.add('animate-spin-slow');
-          musicLabel.innerText = "Pausar";
-        }).catch(() => {});
-      }
-    }
-
-    // Sumar nuevos recuerdos al collage
-    document.addEventListener("DOMContentLoaded", function() {
-      const memoriesData = {{ memories|tojson }};
-      const wall = document.getElementById('collageWall');
-      if (memoriesData && memoriesData.length > 0 && wall) {
-        memoriesData.forEach((m, idx) => {
-          if (m.photo) {
-            const img = document.createElement('img');
-            img.src = m.photo;
-            img.className = 'collage-tile';
-            img.style.animationDelay = `-${(idx * 2) % 10}s`;
-            wall.prepend(img);
-          }
-        });
-      }
-    });
-
-    let currentMemory = null;
-    function openDetailModal(memory) {
-      currentMemory = memory;
-      document.getElementById('detailTitle').innerText = memory.title;
-      document.getElementById('detailDate').innerText = memory.date;
-      document.getElementById('detailStory').innerText = memory.story || 'Sin historia añadida.';
-
-      const photoContainer = document.getElementById('detailPhotoContainer');
-      const photoEl = document.getElementById('detailPhoto');
-      if (memory.photo) {
-        photoEl.src = memory.photo;
-        photoContainer.classList.remove('hidden');
-      } else {
-        photoContainer.classList.add('hidden');
-      }
-
-      document.getElementById('formDelete').action = '/delete/' + memory.id;
-      document.getElementById('modalDetail').classList.remove('hidden');
-    }
-
-    document.getElementById('btnEditMemory').addEventListener('click', () => {
-      if (!currentMemory) return;
-      document.getElementById('modalDetail').classList.add('hidden');
-      document.getElementById('editTitle').value = currentMemory.title;
-      document.getElementById('editDate').value = currentMemory.date;
-      document.getElementById('editStory').value = currentMemory.story || '';
-      document.getElementById('formEdit').action = '/edit/' + currentMemory.id;
-      document.getElementById('modalEdit').classList.remove('hidden');
-    });
-  </script>
-  {% endif %}
+            if (navigator.share) {
+                // Celulares (WhatsApp, Instagram, etc.)
+                navigator.share({
+                    title: titulo,
+                    text: texto,
+                    url: url
+                }).catch(err => console.log('Cancelado:', err));
+            } else {
+                // Computadora (abre WhatsApp Web directo)
+                const mensajeWa = encodeURIComponent(`${texto}\n${url}`);
+                window.open(`https://api.whatsapp.com/send?text=${mensajeWa}`, '_blank');
+            }
+        }
+    </script>
 </body>
 </html>
