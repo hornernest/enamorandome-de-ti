@@ -165,7 +165,7 @@
           <div class="flex-shrink-0 flex flex-col items-center relative z-10 w-44"
                onclick='openDetailModal({{ memory|tojson }})'>
 
-            {% if loop.index is odd %}
+            {% if loop.index % 2 != 0 %}
               <!-- POSICIÓN: ARRIBA DE LA LÍNEA -->
               <div class="flex flex-col items-center mb-4 transition-transform duration-300 hover:scale-105 cursor-pointer group">
                 <div class="bg-slate-900/90 border border-slate-800 hover:border-pink-500/60 p-2.5 rounded-2xl shadow-xl backdrop-blur-md w-full transition-all">
@@ -294,4 +294,218 @@
                  class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">
         </div>
         <div>
-          <label class="block text-xs text-slate-4
+          <label class="block text-xs text-slate-400 mb-1">Fecha</label>
+          <input type="date" name="date_event" required 
+                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Foto o Video especial</label>
+          <input type="file" name="photo" accept="image/*,video/mp4,video/webm,video/quicktime" 
+                 class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-pink-500/10 file:text-pink-400">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Anécdota / Historia</label>
+          <textarea name="story" rows="3" placeholder="¿Qué sentiste ese día?" 
+                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500"></textarea>
+        </div>
+        <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 py-3 rounded-2xl font-semibold text-white shadow-lg transition-all">
+          Guardar recuerdo
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: EDITAR -->
+  <div id="modalEdit" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden">
+    <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold text-white">Editar Momento</h3>
+        <button onclick="document.getElementById('modalEdit').classList.add('hidden')" class="text-slate-400 hover:text-white p-2">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+
+      <form id="formEdit" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Título del momento</label>
+          <input type="text" id="editTitle" name="title" required 
+                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Fecha</label>
+          <input type="date" id="editDate" name="date_event" required 
+                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Cambiar Foto o Video (opcional)</label>
+          <input type="file" name="photo" accept="image/*,video/mp4,video/webm,video/quicktime" 
+                 class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-pink-500/10 file:text-pink-400">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Anécdota / Historia</label>
+          <textarea id="editStory" name="story" rows="3" 
+                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500"></textarea>
+        </div>
+        <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 py-3 rounded-2xl font-semibold text-white shadow-lg transition-all">
+          Actualizar recuerdo
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Contador
+    const START_DATE = new Date('2026-06-19T16:37:00');
+
+    function updateCounter() {
+      const now = new Date();
+      const diffMs = now - START_DATE;
+
+      if (diffMs > 0) {
+        const totalSeconds = Math.floor(diffMs / 1000);
+        const days = Math.floor(totalSeconds / (3600 * 24));
+        const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = Math.floor(totalSeconds % 60);
+
+        document.getElementById('days').innerText = days;
+        document.getElementById('hours').innerText = hours;
+        document.getElementById('minutes').innerText = minutes;
+        document.getElementById('seconds').innerText = seconds;
+      }
+    }
+    setInterval(updateCounter, 1000);
+    updateCounter();
+
+    // Sumar nuevos recuerdos al collage de forma segura
+    document.addEventListener("DOMContentLoaded", function() {
+      const memoriesData = {{ (memories or [])|tojson }};
+      const wall = document.getElementById('collageWall');
+      if (memoriesData && memoriesData.length > 0 && wall) {
+        memoriesData.forEach((m, idx) => {
+          if (m.photo && typeof m.photo === 'string' && m.photo.indexOf('data:video') === -1) {
+            const img = document.createElement('img');
+            img.src = m.photo;
+            img.className = 'collage-tile';
+            img.style.animationDelay = `-${(idx * 2) % 10}s`;
+            wall.prepend(img);
+          }
+        });
+      }
+    });
+
+    let currentMemory = null;
+    function openDetailModal(memory) {
+      currentMemory = memory;
+      document.getElementById('detailTitle').innerText = memory.title;
+      document.getElementById('detailDate').innerText = memory.date;
+      document.getElementById('detailStory').innerText = memory.story || 'Sin historia añadida.';
+
+      const mediaContainer = document.getElementById('detailMediaContainer');
+      const photoEl = document.getElementById('detailPhoto');
+      const videoEl = document.getElementById('detailVideo');
+
+      videoEl.pause();
+
+      if (memory.photo) {
+        mediaContainer.classList.remove('hidden');
+        if (typeof memory.photo === 'string' && memory.photo.indexOf('data:video') !== -1) {
+          photoEl.classList.add('hidden');
+          videoEl.classList.remove('hidden');
+          videoEl.src = memory.photo;
+        } else {
+          videoEl.classList.add('hidden');
+          photoEl.classList.remove('hidden');
+          photoEl.src = memory.photo;
+        }
+      } else {
+        mediaContainer.classList.add('hidden');
+      }
+
+      document.getElementById('formDelete').action = '/delete/' + memory.id;
+      document.getElementById('modalDetail').classList.remove('hidden');
+    }
+
+    // Convertir Base64 a archivo File para Instagram, WhatsApp, etc.
+    async function base64ToFile(base64Data, filename) {
+      const res = await fetch(base64Data);
+      const blob = await res.blob();
+      return new File([blob], filename, { type: blob.type });
+    }
+
+    // Compartir con foto/video directo
+    async function compartirRecuerdoActual() {
+      if (!currentMemory) return;
+
+      const texto = `❤️ Recordando juntos: "${currentMemory.title}" (${currentMemory.date}) ✨`;
+      const url = window.location.origin;
+
+      try {
+        let shareData = {
+          title: currentMemory.title,
+          text: texto,
+          url: url
+        };
+
+        if (currentMemory.photo) {
+          const esVideo = typeof currentMemory.photo === 'string' && currentMemory.photo.indexOf('data:video') !== -1;
+          const ext = esVideo ? 'mp4' : 'jpg';
+          const archivo = await base64ToFile(currentMemory.photo, `recuerdo.${ext}`);
+
+          if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
+            shareData = {
+              files: [archivo],
+              title: currentMemory.title,
+              text: texto
+            };
+          }
+        }
+
+        if (navigator.share) {
+          await navigator.share(shareData);
+        } else {
+          const mensajeWa = encodeURIComponent(`${texto}\n${url}`);
+          window.open(`https://api.whatsapp.com/send?text=${mensajeWa}`, '_blank');
+        }
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.log('Error al compartir:', err);
+        }
+      }
+    }
+
+    document.getElementById('btnEditMemory').addEventListener('click', () => {
+      if (!currentMemory) return;
+      document.getElementById('modalDetail').classList.add('hidden');
+      document.getElementById('editTitle').value = currentMemory.title;
+      document.getElementById('editDate').value = currentMemory.date;
+      document.getElementById('editStory').value = currentMemory.story || '';
+      document.getElementById('formEdit').action = '/edit/' + currentMemory.id;
+      document.getElementById('modalEdit').classList.remove('hidden');
+    });
+  </script>
+  {% endif %}
+
+  <!-- Control de Audio global (reproducción automática) -->
+  <script>
+    const audio = document.getElementById('bgMusic');
+
+    if (audio) {
+      audio.volume = 0.4;
+      
+      const startAudio = () => {
+        if (audio.paused) {
+          audio.play().catch(() => {});
+        }
+      };
+
+      window.addEventListener('load', startAudio);
+      startAudio();
+
+      ['click', 'touchstart', 'scroll', 'keydown'].forEach(evt => {
+        window.addEventListener(evt, startAudio, { once: true });
+      });
+    }
+  </script>
+</body>
+</html>
