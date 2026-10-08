@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enamorándome de ti</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .timeline-stem::before {
+      content: '';
+      position: absolute;
+      left: 1.25rem;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, #ec4899, #8b5cf6, #3b82f6);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-24 font-sans">
+
+  <!-- Pantalla de Login si no ha ingresado contraseña -->
+  {% if not logged_in %}
+  <div class="fixed inset-0 bg-slate-950 flex items-center justify-center p-6 z-50">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
+      <div class="w-16 h-16 mx-auto mb-4 bg-pink-500/10 text-pink-400 rounded-full flex items-center justify-center text-2xl shadow-inner">
+        <i class="fas fa-heart animate-pulse"></i>
+      </div>
+      <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-400 mb-2">
+        Enamorándome de ti
+      </h1>
+      <p class="text-xs text-slate-400 mb-6">Nuestro rincón privado en el tiempo.</p>
+
+      {% if error %}
+        <p class="text-red-400 text-xs mb-4 bg-red-950/40 border border-red-800/50 py-2 rounded-xl">{{ error }}</p>
+      {% endif %}
+
+      <form action="/login" method="POST" class="space-y-4">
+        <input type="password" name="password" required placeholder="Contraseña de pareja" 
+               class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-center text-sm text-white focus:outline-none focus:border-pink-500 placeholder-slate-600">
+        <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 py-3 rounded-2xl font-semibold text-white shadow-lg shadow-pink-500/20 active:scale-95 transition-all">
+          Entrar a nuestra historia
+        </button>
+      </form>
+    </div>
+  </div>
+  {% else %}
+
+  <!-- Cabecera Principal con Contador Infinito -->
+  <header class="pt-10 pb-8 px-6 text-center bg-gradient-to-b from-slate-900 to-slate-950 border-b border-slate-800/80 sticky top-0 backdrop-blur-md z-30 bg-opacity-90">
+    <h1 class="text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-400">
+      Enamorándome de ti
+    </h1>
+    <p class="text-[11px] text-pink-400/90 font-medium tracking-widest uppercase mt-1">El tiempo juntos</p>
+
+    <!-- Contador Vivo -->
+    <div class="grid grid-cols-4 gap-2 max-w-xs mx-auto mt-5">
+      <div class="bg-slate-900/90 border border-slate-800/80 rounded-2xl p-2.5 shadow-md">
+        <span id="days" class="text-xl font-black text-pink-400">0</span>
+        <span class="block text-[9px] text-slate-400 uppercase font-semibold">Días</span>
+      </div>
+      <div class="bg-slate-900/90 border border-slate-800/80 rounded-2xl p-2.5 shadow-md">
+        <span id="hours" class="text-xl font-black text-purple-400">0</span>
+        <span class="block text-[9px] text-slate-400 uppercase font-semibold">Horas</span>
+      </div>
+      <div class="bg-slate-900/90 border border-slate-800/80 rounded-2xl p-2.5 shadow-md">
+        <span id="minutes" class="text-xl font-black text-indigo-400">0</span>
+        <span class="block text-[9px] text-slate-400 uppercase font-semibold">Min</span>
+      </div>
+      <div class="bg-slate-900/90 border border-slate-800/80 rounded-2xl p-2.5 shadow-md">
+        <span id="seconds" class="text-xl font-black text-slate-200">0</span>
+        <span class="block text-[9px] text-slate-400 uppercase font-semibold">Seg</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Línea de tiempo -->
+  <main class="max-w-md mx-auto px-4 mt-8 relative timeline-stem">
+    {% if not memories %}
+      <div class="text-center py-16 text-slate-500 pl-6">
+        <i class="far fa-heart text-4xl mb-3 text-pink-500/40"></i>
+        <p class="text-sm">Aún no hay momentos registrados.<br>Toca el botón <b>+</b> para añadir el primero.</p>
+      </div>
+    {% endif %}
+
+    {% for memory in memories %}
+      <div class="relative pl-10 mb-8 group">
+        <div class="absolute left-[0.85rem] top-2 w-3.5 h-3.5 rounded-full bg-pink-500 border-4 border-slate-950 group-hover:scale-125 transition-transform duration-300"></div>
+
+        <div class="bg-slate-900/90 border border-slate-800/80 rounded-3xl overflow-hidden shadow-xl hover:border-pink-500/40 transition-all">
+          {% if memory.photo %}
+            <div class="w-full max-h-80 overflow-hidden bg-slate-950">
+              <img src="{{ memory.photo }}" alt="{{ memory.title }}" class="w-full h-full object-cover">
+            </div>
+          {% endif %}
+          <div class="p-5">
+            <span class="inline-block text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-pink-500/10 text-pink-400 mb-2">
+              {{ memory.date }}
+            </span>
+            <h2 class="text-lg font-bold text-white mb-1.5">{{ memory.title }}</h2>
+            {% if memory.story %}
+              <p class="text-slate-300 text-sm leading-relaxed whitespace-pre-line">{{ memory.story }}</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </main>
+
+  <!-- Botón Flotante para Agregar (+) -->
+  <button onclick="document.getElementById('modal').classList.remove('hidden')" 
+          class="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center text-white shadow-xl shadow-pink-500/30 active:scale-95 transition-all z-40">
+    <i class="fas fa-plus text-xl"></i>
+  </button>
+
+  <!-- Modal para Agregar Momento -->
+  <div id="modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden">
+    <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold text-white">Nuevo Momento</h3>
+        <button onclick="document.getElementById('modal').classList.add('hidden')" class="text-slate-400 hover:text-white p-2">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+
+      <form action="/add" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Título del momento</label>
+          <input type="text" name="title" required placeholder="Ej. El día que fuimos por nieve..." 
+                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Fecha</label>
+          <input type="date" name="date_event" required 
+                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Foto (desde cámara o galería)</label>
+          <input type="file" name="photo" accept="image/*" 
+                 class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-pink-500/10 file:text-pink-400">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Anécdota / Historia</label>
+          <textarea name="story" rows="3" placeholder="¿Qué sentiste ese día?" 
+                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500"></textarea>
+        </div>
+        <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 py-3 rounded-2xl font-semibold text-white shadow-lg transition-all">
+          Guardar recuerdo
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Lógica del Contador Infinito -->
+  <script>
+    // Fecha de inicio exacta: 19 de junio de 2026 a las 16:37
+    const START_DATE = new Date('2026-06-19T16:37:00');
+
+    function updateCounter() {
+      const now = new Date();
+      const diffMs = now - START_DATE;
+
+      if (diffMs > 0) {
+        const totalSeconds = Math.floor(diffMs / 1000);
+        const days = Math.floor(totalSeconds / (3600 * 24));
+        const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = Math.floor(totalSeconds % 60);
+
+        document.getElementById('days').innerText = days;
+        document.getElementById('hours').innerText = hours;
+        document.getElementById('minutes').innerText = minutes;
+        document.getElementById('seconds').innerText = seconds;
+      }
+    }
+
+    setInterval(updateCounter, 1000);
+    updateCounter();
+  </script>
+  {% endif %}
+</body>
+</html>
