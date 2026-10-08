@@ -62,20 +62,21 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-pink-500 selection:text-white flex flex-col justify-between overflow-x-hidden relative">
 
-  <!-- FONDO: COLLAGE TOTAL CINEMATOGRÁFICO CON TUS FOTOS -->
+ <!-- FONDO: COLLAGE TOTAL CINEMATOGRÁFICO CON TUS FOTOS -->
   <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
     <div id="collageWall" class="bg-collage-grid">
-      <div class="collage-tile bg-cover bg-center" style="background-image: url('/static/img/foto1.jpg');"></div>
-      <div class="collage-tile bg-cover bg-center" style="background-image: url('/static/img/foto2.jpg'); animation-delay: -2s;"></div>
-      <div class="collage-tile bg-cover bg-center" style="background-image: url('/static/img/foto3.jpg'); animation-delay: -4s;"></div>
-      <div class="collage-tile bg-cover bg-center" style="background-image: url('/static/img/foto4.jpg'); animation-delay: -6s;"></div>
-      <div class="collage-tile bg-cover bg-center" style="background-image: url('/static/img/foto5.jpg'); animation-delay: -8s;"></div>
-      <div class="collage-tile bg-cover bg-center" style="background-image: url('/static/img/foto6.jpg'); animation-delay: -10s;"></div>
-      <div class="collage-tile bg-cover bg-center" style="background-image: url('/static/img/foto7.jpg'); animation-delay: -12s;"></div>
-      <div class="collage-tile bg-cover bg-center" style="background-image: url('/static/img/foto8.jpg'); animation-delay: -14s;"></div>
+      <div class="collage-tile bg-cover bg-center" style="background-image: url('{{ url_for('static', filename='foto1.jpg') }}');"></div>
+      <div class="collage-tile bg-cover bg-center" style="background-image: url('{{ url_for('static', filename='foto2.jpg') }}'); animation-delay: -2s;"></div>
+      <div class="collage-tile bg-cover bg-center" style="background-image: url('{{ url_for('static', filename='foto3.jpg') }}'); animation-delay: -4s;"></div>
+      <div class="collage-tile bg-cover bg-center" style="background-image: url('{{ url_for('static', filename='foto4.jpg') }}'); animation-delay: -6s;"></div>
+      <div class="collage-tile bg-cover bg-center" style="background-image: url('{{ url_for('static', filename='foto5.jpg') }}'); animation-delay: -8s;"></div>
+      <div class="collage-tile bg-cover bg-center" style="background-image: url('{{ url_for('static', filename='foto6.jpg') }}'); animation-delay: -10s;"></div>
+      <div class="collage-tile bg-cover bg-center" style="background-image: url('{{ url_for('static', filename='foto7.jpg') }}'); animation-delay: -12s;"></div>
+      <div class="collage-tile bg-cover bg-center" style="background-image: url('{{ url_for('static', filename='foto8.jpg') }}'); animation-delay: -14s;"></div>
     </div>
-    <div class="absolute inset-0 bg-slate-950/75 mix-blend-multiply"></div>
-    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-slate-950/90"></div>
+    <!-- Capa de contraste cinematográfico -->
+    <div class="absolute inset-0 bg-slate-950/70 mix-blend-multiply"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-slate-950/80"></div>
   </div>
 
   {% if not logged_in %}
