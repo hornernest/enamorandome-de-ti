@@ -1,4 +1,4 @@
 flask
 gunicorn
 psycopg[binary]
-twilio
+requests
