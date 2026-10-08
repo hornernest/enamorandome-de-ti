@@ -1,17 +1,50 @@
 import os
 import base64
 from flask import Flask, render_template, request, redirect, url_for, session
+from twilio.rest import Client
 
 app = Flask(__name__)
 app.secret_key = 'clave_secreta_sesion_enamorandome_de_ti'
 
 PASSWORD_SECRETA = "MoraHorn0209"
 
+# FUNCIÓN PARA ENVIAR SMS CON TWILIO
+def send_sms_notification(memory_title, memory_date):
+    account_sid = os.environ.get('TWILIO_ACCOUNT_SID')
+    auth_token = os.environ.get('TWILIO_AUTH_TOKEN')
+    twilio_number = os.environ.get('TWILIO_PHONE_NUMBER')
+    target_numbers = os.environ.get('TARGET_PHONE_NUMBER')
+
+    print(f"DEBUG: Intentando enviar SMS. SID: {'Configurado' if account_sid else 'Falta'}, Destino: {target_numbers}")
+
+    if not all([account_sid, auth_token, twilio_number, target_numbers]):
+        print("ERROR: Variables de Twilio no configuradas en Environment de Render.")
+        return
+
+    try:
+        client = Client(account_sid, auth_token)
+        mensaje_texto = (
+            f"❤️ ¡Nuevo recuerdo añadido a nuestra historia!\n"
+            f"✨ {memory_title} ({memory_date})\n"
+            f"Entra a revivirlo: https://enamorandome-de-ti.onrender.com"
+        )
+        
+        # Soporta uno o varios números separados por coma
+        numeros = [n.strip() for n in target_numbers.split(',') if n.strip()]
+        for num in numeros:
+            msg = client.messages.create(
+                body=mensaje_texto,
+                from_=twilio_number,
+                to=num
+            )
+            print(f"ÉXITO: SMS enviado a {num} con ID: {msg.sid}")
+    except Exception as e:
+        print(f"ERROR al enviar SMS con Twilio: {e}")
+
 def get_db_connection():
     db_url = os.environ.get('DATABASE_URL')
     if db_url:
         import psycopg
-        # Render a veces entrega la url con 'postgres://', psycopg requiere 'postgresql://'
         if db_url.startswith('postgres://'):
             db_url = db_url.replace('postgres://', 'postgresql://', 1)
         return psycopg.connect(db_url)
@@ -102,6 +135,10 @@ def add():
     conn.commit()
     cursor.close()
     conn.close()
+
+    # Enviar notificación automática por SMS
+    send_sms_notification(title, date_event)
+
     return redirect(url_for('index'))
 
 @app.route('/edit/<int:id>', methods=['POST'])
