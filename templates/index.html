@@ -23,36 +23,42 @@
       z-index: 0;
     }
 
-    /* Cuadrícula del collage total */
+    /* Mosaico total de fondo */
     .bg-collage-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 14px;
-      width: 110vw;
-      height: 110vh;
-      margin-left: -5vw;
-      margin-top: -5vh;
-      transform: scale(1.02);
-      filter: blur(6px) brightness(0.40) saturate(1.25);
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      width: 104vw;
+      height: 104vh;
+      margin-left: -2vw;
+      margin-top: -2vh;
+      filter: blur(5px) brightness(0.60) saturate(1.2);
       pointer-events: none;
     }
 
-    /* Movimiento suave de respiración cinematográfica para cada baldosa */
-    @keyframes subtleDrift {
-      0%, 100% { transform: scale(1) translateY(0); }
-      50% { transform: scale(1.05) translateY(-5px); }
-    }
-    .collage-tile {
-      animation: subtleDrift 14s ease-in-out infinite alternate;
-      border-radius: 1.25rem;
-      overflow: hidden;
-      min-height: 220px;
+    @media (max-width: 768px) {
+      .bg-collage-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
-    /* Animación continua de acercar y alejar la foto en el visor */
+    @keyframes subtleDrift {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+    .collage-tile {
+      animation: subtleDrift 10s ease-in-out infinite alternate;
+      border-radius: 1.25rem;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Zoom in y Zoom out suave continuo para la foto al abrir el recuerdo */
     @keyframes breathingZoom {
       0% { transform: scale(1); }
-      50% { transform: scale(1.09); }
+      50% { transform: scale(1.08); }
       100% { transform: scale(1); }
     }
     .animate-photo-zoom {
@@ -62,21 +68,20 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-pink-500 selection:text-white flex flex-col justify-between overflow-x-hidden relative">
 
- <!-- FONDO: COLLAGE TOTAL CINEMATOGRÁFICO CON TUS FOTOS -->
+  <!-- FONDO: COLLAGE TOTAL CON TUS 8 FOTOS DE STATIC/IMG/ -->
   <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
     <div id="collageWall" class="bg-collage-grid">
-      <div class="collage-tile bg-cover bg-center" style="background-image: url('{{ url_for('static', filename='foto1.jpg') }}');"></div>
-      <div class="collage-tile bg-cover bg-center" style="background-image: url('{{ url_for('static', filename='foto2.jpg') }}'); animation-delay: -2s;"></div>
-      <div class="collage-tile bg-cover bg-center" style="background-image: url('{{ url_for('static', filename='foto3.jpg') }}'); animation-delay: -4s;"></div>
-      <div class="collage-tile bg-cover bg-center" style="background-image: url('{{ url_for('static', filename='foto4.jpg') }}'); animation-delay: -6s;"></div>
-      <div class="collage-tile bg-cover bg-center" style="background-image: url('{{ url_for('static', filename='foto5.jpg') }}'); animation-delay: -8s;"></div>
-      <div class="collage-tile bg-cover bg-center" style="background-image: url('{{ url_for('static', filename='foto6.jpg') }}'); animation-delay: -10s;"></div>
-      <div class="collage-tile bg-cover bg-center" style="background-image: url('{{ url_for('static', filename='foto7.jpg') }}'); animation-delay: -12s;"></div>
-      <div class="collage-tile bg-cover bg-center" style="background-image: url('{{ url_for('static', filename='foto8.jpg') }}'); animation-delay: -14s;"></div>
+      <img src="{{ url_for('static', filename='img/foto1.jpg') }}" class="collage-tile" alt="Fondo 1">
+      <img src="{{ url_for('static', filename='img/foto2.jpg') }}" class="collage-tile" style="animation-delay: -2s;" alt="Fondo 2">
+      <img src="{{ url_for('static', filename='img/foto3.jpg') }}" class="collage-tile" style="animation-delay: -4s;" alt="Fondo 3">
+      <img src="{{ url_for('static', filename='img/foto4.jpg') }}" class="collage-tile" style="animation-delay: -6s;" alt="Fondo 4">
+      <img src="{{ url_for('static', filename='img/foto5.jpg') }}" class="collage-tile" style="animation-delay: -8s;" alt="Fondo 5">
+      <img src="{{ url_for('static', filename='img/foto6.jpg') }}" class="collage-tile" style="animation-delay: -10s;" alt="Fondo 6">
+      <img src="{{ url_for('static', filename='img/foto7.jpg') }}" class="collage-tile" style="animation-delay: -12s;" alt="Fondo 7">
+      <img src="{{ url_for('static', filename='img/foto8.jpg') }}" class="collage-tile" style="animation-delay: -14s;" alt="Fondo 8">
     </div>
-    <!-- Capa de contraste cinematográfico -->
-    <div class="absolute inset-0 bg-slate-950/70 mix-blend-multiply"></div>
-    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-slate-950/80"></div>
+    <!-- Velo sutil para lectura perfecta de los textos -->
+    <div class="absolute inset-0 bg-slate-950/50 backdrop-blur-[1px]"></div>
   </div>
 
   {% if not logged_in %}
@@ -139,35 +144,32 @@
     <!-- LÍNEA DE TIEMPO HORIZONTAL -->
     <main class="my-auto py-10 px-6">
       <div class="text-center mb-6">
-        <span class="text-[11px] text-pink-300/80 tracking-wide font-medium bg-slate-900/60 px-4 py-1.5 rounded-full border border-slate-800 backdrop-blur-md inline-flex items-center gap-2">
+        <span class="text-[11px] text-pink-300/90 tracking-wide font-medium bg-slate-900/70 px-4 py-1.5 rounded-full border border-pink-500/30 backdrop-blur-md inline-flex items-center gap-2 shadow-lg">
           <i class="fas fa-hand-pointer text-pink-400 animate-bounce"></i> Pasa el mouse o toca una fecha rosa
         </span>
       </div>
 
       {% if not memories %}
-        <div class="text-center py-10 text-slate-400/80">
-          <i class="far fa-heart text-4xl mb-3 text-pink-500/40"></i>
-          <p class="text-sm">Aún no hay momentos registrados.<br>Toca el botón <b>+</b> para subir el primero.</p>
+        <div class="text-center py-10 text-slate-200">
+          <i class="far fa-heart text-4xl mb-3 text-pink-500 animate-pulse"></i>
+          <p class="text-sm font-semibold">Aún no hay momentos registrados.<br>Toca el botón <b>+</b> para subir el primero.</p>
         </div>
       {% endif %}
 
-      <!-- Pista horizontal deslizable -->
+      <!-- Pista horizontal -->
       <div class="overflow-x-auto no-scrollbar py-10 px-8 flex items-center horizontal-track space-x-14 cursor-grab active:cursor-grabbing">
         {% for memory in memories %}
           <div class="flex-shrink-0 flex flex-col items-center relative z-10 group cursor-pointer"
                onmouseenter='openDetailModal({{ memory|tojson }})'
                onclick='openDetailModal({{ memory|tojson }})'>
             
-            <!-- FECHA RESALTADA EN ROSA -->
-            <button class="mb-3 px-3.5 py-1 rounded-full bg-pink-500/20 border border-pink-500/60 text-pink-300 group-hover:bg-pink-500 group-hover:text-white transition-all duration-300 shadow-lg shadow-pink-500/20 font-bold text-xs tracking-wider transform group-hover:scale-110">
+            <button class="mb-3 px-3.5 py-1 rounded-full bg-pink-500/30 border border-pink-500 text-pink-200 group-hover:bg-pink-500 group-hover:text-white transition-all duration-300 shadow-lg shadow-pink-500/30 font-bold text-xs tracking-wider transform group-hover:scale-110">
               {{ memory.date }}
             </button>
 
-            <!-- NODO EN LA LÍNEA -->
-            <div class="w-4 h-4 rounded-full bg-pink-500 border-2 border-slate-950 ring-4 ring-pink-500/30 group-hover:ring-pink-500/80 group-hover:scale-150 transition-all duration-300 shadow-md"></div>
+            <div class="w-4 h-4 rounded-full bg-pink-500 border-2 border-slate-950 ring-4 ring-pink-500/40 group-hover:ring-pink-500/90 group-hover:scale-150 transition-all duration-300 shadow-md"></div>
 
-            <!-- TÍTULO -->
-            <span class="mt-3 text-[11px] font-semibold text-slate-300 max-w-[110px] truncate text-center group-hover:text-pink-300 transition-colors">
+            <span class="mt-3 text-[11px] font-semibold text-slate-200 max-w-[110px] truncate text-center group-hover:text-pink-300 transition-colors">
               {{ memory.title }}
             </span>
           </div>
@@ -184,10 +186,9 @@
     <i class="fas fa-plus text-xl"></i>
   </button>
 
-  <!-- MODAL: VISOR DE DETALLE (ZOOM CINEMATOGRÁFICO) -->
+  <!-- MODAL: VISOR DE DETALLE CON ZOOM CINEMATOGRÁFICO -->
   <div id="modalDetail" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900/95 border border-slate-800 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl relative">
-      
       <button onclick="document.getElementById('modalDetail').classList.add('hidden')" class="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-slate-950/70 text-slate-300 flex items-center justify-center hover:text-white">
         <i class="fas fa-times text-xs"></i>
       </button>
@@ -219,7 +220,7 @@
     </div>
   </div>
 
-  <!-- MODAL: AGREGAR NUEVO MOMENTO -->
+  <!-- MODAL: AGREGAR -->
   <div id="modalAdd" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden">
     <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl">
       <div class="flex justify-between items-center mb-4">
@@ -257,7 +258,7 @@
     </div>
   </div>
 
-  <!-- MODAL: EDITAR MOMENTO -->
+  <!-- MODAL: EDITAR -->
   <div id="modalEdit" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden">
     <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl">
       <div class="flex justify-between items-center mb-4">
@@ -296,7 +297,6 @@
   </div>
 
   <script>
-    // Contador
     const START_DATE = new Date('2026-06-19T16:37:00');
 
     function updateCounter() {
@@ -319,24 +319,23 @@
     setInterval(updateCounter, 1000);
     updateCounter();
 
-    // Sumar fotos nuevas de recuerdos automáticamente al collage de fondo
+    // Sumar nuevos recuerdos subidos al collage de fondo
     document.addEventListener("DOMContentLoaded", function() {
       const memoriesData = {{ memories|tojson }};
       const wall = document.getElementById('collageWall');
       if (memoriesData && memoriesData.length > 0 && wall) {
         memoriesData.forEach((m, idx) => {
           if (m.photo) {
-            const tile = document.createElement('div');
-            tile.className = 'collage-tile bg-cover bg-center';
-            tile.style.backgroundImage = `url('${m.photo}')`;
-            tile.style.animationDelay = `-${(idx * 2.5) % 12}s`;
-            wall.prepend(tile);
+            const img = document.createElement('img');
+            img.src = m.photo;
+            img.className = 'collage-tile';
+            img.style.animationDelay = `-${(idx * 2) % 10}s`;
+            wall.prepend(img);
           }
         });
       }
     });
 
-    // Abrir Modal de Detalle
     let currentMemory = null;
     function openDetailModal(memory) {
       currentMemory = memory;
@@ -357,7 +356,6 @@
       document.getElementById('modalDetail').classList.remove('hidden');
     }
 
-    // Configurar Modal de Edición
     document.getElementById('btnEditMemory').addEventListener('click', () => {
       if (!currentMemory) return;
       document.getElementById('modalDetail').classList.add('hidden');
