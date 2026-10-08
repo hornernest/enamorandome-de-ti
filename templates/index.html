@@ -10,17 +10,21 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* Línea horizontal central */
+    /* Línea horizontal central continua */
+    .horizontal-track {
+      position: relative;
+      min-height: 480px;
+    }
     .horizontal-track::before {
       content: '';
       position: absolute;
       top: 50%;
-      left: 1.5rem;
-      right: 1.5rem;
-      height: 2px;
+      left: 0;
+      right: 0;
+      height: 3px;
       background: linear-gradient(90deg, #ec4899, #a855f7, #6366f1);
       transform: translateY(-50%);
-      z-index: 0;
+      z-index: 1;
     }
 
     /* Mosaico total de fondo */
@@ -64,33 +68,15 @@
     .animate-photo-zoom {
       animation: breathingZoom 8s ease-in-out infinite alternate;
     }
-
-    /* Giro de disco de música cuando suena */
-    @keyframes spinSlow {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-    .animate-spin-slow {
-      animation: spinSlow 5s linear infinite;
-    }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-pink-500 selection:text-white flex flex-col justify-between overflow-x-hidden relative" onclick="tryAutoplay()">
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-pink-500 selection:text-white flex flex-col justify-between overflow-x-hidden relative">
 
   <!-- AUDIO DE FONDO -->
-  <audio id="bgMusic" loop preload="auto">
-    <source src="{{ url_for('static', filename='musica.mp3') }}" type="audio/mpeg">
+  <audio id="bgMusic" loop playsinline preload="auto">
     <source src="{{ url_for('static', filename='img/musica.mp3') }}" type="audio/mpeg">
+    <source src="{{ url_for('static', filename='musica.mp3') }}" type="audio/mpeg">
   </audio>
-
-  <!-- BOTÓN FLOTANTE DE CONTROL DE MÚSICA -->
-  <button id="musicToggleBtn" onclick="event.stopPropagation(); toggleMusic();" 
-          class="fixed top-5 left-5 z-40 bg-slate-900/80 hover:bg-slate-800 text-pink-400 border border-pink-500/30 backdrop-blur-md px-3.5 py-2 rounded-full flex items-center gap-2.5 shadow-xl transition-all active:scale-95">
-    <div id="discIcon" class="w-6 h-6 rounded-full bg-pink-500/20 flex items-center justify-center text-xs">
-      <i class="fas fa-compact-disc"></i>
-    </div>
-    <span id="musicLabel" class="text-[11px] font-semibold tracking-wide text-slate-200">Play Música</span>
-  </button>
 
   <!-- FONDO: COLLAGE TOTAL -->
   <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
@@ -142,7 +128,7 @@
       <h1 class="text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-400">
         Enamorándome de ti
       </h1>
-      <p class="text-[10px] text-pink-400 font-semibold tracking-widest uppercase mt-0.5">Tiempo transcurrido juntos</p>
+      <p class="text-[10px] text-pink-400 font-semibold tracking-widest uppercase mt-0.5">Tiempo transcurrido</p>
 
       <div class="grid grid-cols-4 gap-2 max-w-xs mx-auto mt-4">
         <div class="bg-slate-900/80 backdrop-blur-md border border-slate-800/80 rounded-2xl p-2 shadow-md">
@@ -164,14 +150,8 @@
       </div>
     </header>
 
-    <!-- LÍNEA DE TIEMPO HORIZONTAL -->
+    <!-- LÍNEA DE TIEMPO HORIZONTAL CON TARJETAS ALTERNADAS -->
     <main class="my-auto py-10 px-6">
-      <div class="text-center mb-6">
-        <span class="text-[11px] text-pink-300/90 tracking-wide font-medium bg-slate-900/70 px-4 py-1.5 rounded-full border border-pink-500/30 backdrop-blur-md inline-flex items-center gap-2 shadow-lg">
-          <i class="fas fa-hand-pointer text-pink-400 animate-bounce"></i> Pasa el mouse o toca una fecha rosa
-        </span>
-      </div>
-
       {% if not memories %}
         <div class="text-center py-10 text-slate-200">
           <i class="far fa-heart text-4xl mb-3 text-pink-500 animate-pulse"></i>
@@ -180,21 +160,74 @@
       {% endif %}
 
       <!-- Pista horizontal -->
-      <div class="overflow-x-auto no-scrollbar py-10 px-8 flex items-center horizontal-track space-x-14 cursor-grab active:cursor-grabbing">
+      <div class="overflow-x-auto no-scrollbar py-6 px-10 flex items-center horizontal-track space-x-12 cursor-grab active:cursor-grabbing">
         {% for memory in memories %}
-          <div class="flex-shrink-0 flex flex-col items-center relative z-10 group cursor-pointer"
-               onmouseenter='openDetailModal({{ memory|tojson }})'
+          <div class="flex-shrink-0 flex flex-col items-center relative z-10 w-44"
                onclick='openDetailModal({{ memory|tojson }})'>
 
-            <button class="mb-3 px-3.5 py-1 rounded-full bg-pink-500/30 border border-pink-500 text-pink-200 group-hover:bg-pink-500 group-hover:text-white transition-all duration-300 shadow-lg shadow-pink-500/30 font-bold text-xs tracking-wider transform group-hover:scale-110">
-              {{ memory.date }}
-            </button>
+            {% if loop.index is odd %}
+              <!-- POSICIÓN: ARRIBA DE LA LÍNEA -->
+              <div class="flex flex-col items-center mb-4 transition-transform duration-300 hover:scale-105 cursor-pointer group">
+                <div class="bg-slate-900/90 border border-slate-800 hover:border-pink-500/60 p-2.5 rounded-2xl shadow-xl backdrop-blur-md w-full transition-all">
+                  {% if memory.photo %}
+                    <div class="w-full h-24 rounded-xl overflow-hidden mb-2 bg-slate-950">
+                      {% if memory.photo.startswith('data:video') %}
+                        <video class="w-full h-full object-cover pointer-events-none" muted>
+                          <source src="{{ memory.photo }}">
+                        </video>
+                      {% else %}
+                        <img src="{{ memory.photo }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="{{ memory.title }}">
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                  <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30 mb-1">
+                    {{ memory.date }}
+                  </span>
+                  <h4 class="text-xs font-bold text-white truncate group-hover:text-pink-300 transition-colors">
+                    {{ memory.title }}
+                  </h4>
+                </div>
+                <!-- Línea conectora hacia el nodo -->
+                <div class="w-0.5 h-4 bg-pink-500/50"></div>
+              </div>
 
-            <div class="w-4 h-4 rounded-full bg-pink-500 border-2 border-slate-950 ring-4 ring-pink-500/40 group-hover:ring-pink-500/90 group-hover:scale-150 transition-all duration-300 shadow-md"></div>
+              <!-- Nodo sobre la línea central -->
+              <div class="w-4 h-4 rounded-full bg-pink-500 border-2 border-slate-950 ring-4 ring-pink-500/40 shadow-md"></div>
+              <!-- Espaciador inferior para equilibrar altura -->
+              <div class="h-36"></div>
 
-            <span class="mt-3 text-[11px] font-semibold text-slate-200 max-w-[110px] truncate text-center group-hover:text-pink-300 transition-colors">
-              {{ memory.title }}
-            </span>
+            {% else %}
+              <!-- POSICIÓN: ABAJO DE LA LÍNEA -->
+              <!-- Espaciador superior para equilibrar altura -->
+              <div class="h-36"></div>
+              <!-- Nodo sobre la línea central -->
+              <div class="w-4 h-4 rounded-full bg-purple-500 border-2 border-slate-950 ring-4 ring-purple-500/40 shadow-md"></div>
+
+              <div class="flex flex-col items-center mt-4 transition-transform duration-300 hover:scale-105 cursor-pointer group">
+                <!-- Línea conectora hacia el nodo -->
+                <div class="w-0.5 h-4 bg-purple-500/50"></div>
+                <div class="bg-slate-900/90 border border-slate-800 hover:border-purple-500/60 p-2.5 rounded-2xl shadow-xl backdrop-blur-md w-full transition-all">
+                  {% if memory.photo %}
+                    <div class="w-full h-24 rounded-xl overflow-hidden mb-2 bg-slate-950">
+                      {% if memory.photo.startswith('data:video') %}
+                        <video class="w-full h-full object-cover pointer-events-none" muted>
+                          <source src="{{ memory.photo }}">
+                        </video>
+                      {% else %}
+                        <img src="{{ memory.photo }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="{{ memory.title }}">
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                  <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 mb-1">
+                    {{ memory.date }}
+                  </span>
+                  <h4 class="text-xs font-bold text-white truncate group-hover:text-purple-300 transition-colors">
+                    {{ memory.title }}
+                  </h4>
+                </div>
+              </div>
+            {% endif %}
+
           </div>
         {% endfor %}
       </div>
@@ -252,251 +285,4 @@
   <!-- MODAL: AGREGAR -->
   <div id="modalAdd" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden">
     <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-bold text-white">Nuevo Momento</h3>
-        <button onclick="document.getElementById('modalAdd').classList.add('hidden')" class="text-slate-400 hover:text-white p-2">
-          <i class="fas fa-times text-xl"></i>
-        </button>
-      </div>
-
-      <form action="/add" method="POST" enctype="multipart/form-data" class="space-y-4">
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Título del momento</label>
-          <input type="text" name="title" required placeholder="Ej. El día que fuimos por nieve..." 
-                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Fecha</label>
-          <input type="date" name="date_event" required 
-                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Foto o Video especial</label>
-          <input type="file" name="photo" accept="image/*,video/mp4,video/webm,video/quicktime" 
-                 class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-pink-500/10 file:text-pink-400">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Anécdota / Historia</label>
-          <textarea name="story" rows="3" placeholder="¿Qué sentiste ese día?" 
-                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500"></textarea>
-        </div>
-        <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 py-3 rounded-2xl font-semibold text-white shadow-lg transition-all">
-          Guardar recuerdo
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL: EDITAR -->
-  <div id="modalEdit" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden">
-    <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-bold text-white">Editar Momento</h3>
-        <button onclick="document.getElementById('modalEdit').classList.add('hidden')" class="text-slate-400 hover:text-white p-2">
-          <i class="fas fa-times text-xl"></i>
-        </button>
-      </div>
-
-      <form id="formEdit" method="POST" enctype="multipart/form-data" class="space-y-4">
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Título del momento</label>
-          <input type="text" id="editTitle" name="title" required 
-                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Fecha</label>
-          <input type="date" id="editDate" name="date_event" required 
-                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Cambiar Foto o Video (opcional)</label>
-          <input type="file" name="photo" accept="image/*,video/mp4,video/webm,video/quicktime" 
-                 class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-pink-500/10 file:text-pink-400">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Anécdota / Historia</label>
-          <textarea id="editStory" name="story" rows="3" 
-                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500"></textarea>
-        </div>
-        <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 py-3 rounded-2xl font-semibold text-white shadow-lg transition-all">
-          Actualizar recuerdo
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <script>
-    // Contador
-    const START_DATE = new Date('2026-06-19T16:37:00');
-
-    function updateCounter() {
-      const now = new Date();
-      const diffMs = now - START_DATE;
-
-      if (diffMs > 0) {
-        const totalSeconds = Math.floor(diffMs / 1000);
-        const days = Math.floor(totalSeconds / (3600 * 24));
-        const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = Math.floor(totalSeconds % 60);
-
-        document.getElementById('days').innerText = days;
-        document.getElementById('hours').innerText = hours;
-        document.getElementById('minutes').innerText = minutes;
-        document.getElementById('seconds').innerText = seconds;
-      }
-    }
-    setInterval(updateCounter, 1000);
-    updateCounter();
-
-    // Sumar nuevos recuerdos al collage
-    document.addEventListener("DOMContentLoaded", function() {
-      const memoriesData = {{ (memories or [])|tojson }};
-      const wall = document.getElementById('collageWall');
-      if (memoriesData && memoriesData.length > 0 && wall) {
-        memoriesData.forEach((m, idx) => {
-          if (m.photo && !m.photo.startsWith('data:video')) {
-            const img = document.createElement('img');
-            img.src = m.photo;
-            img.className = 'collage-tile';
-            img.style.animationDelay = `-${(idx * 2) % 10}s`;
-            wall.prepend(img);
-          }
-        });
-      }
-    });
-
-    let currentMemory = null;
-    function openDetailModal(memory) {
-      currentMemory = memory;
-      document.getElementById('detailTitle').innerText = memory.title;
-      document.getElementById('detailDate').innerText = memory.date;
-      document.getElementById('detailStory').innerText = memory.story || 'Sin historia añadida.';
-
-      const mediaContainer = document.getElementById('detailMediaContainer');
-      const photoEl = document.getElementById('detailPhoto');
-      const videoEl = document.getElementById('detailVideo');
-
-      videoEl.pause();
-
-      if (memory.photo) {
-        mediaContainer.classList.remove('hidden');
-        if (memory.photo.startsWith('data:video')) {
-          photoEl.classList.add('hidden');
-          videoEl.classList.remove('hidden');
-          videoEl.src = memory.photo;
-        } else {
-          videoEl.classList.add('hidden');
-          photoEl.classList.remove('hidden');
-          photoEl.src = memory.photo;
-        }
-      } else {
-        mediaContainer.classList.add('hidden');
-      }
-
-      document.getElementById('formDelete').action = '/delete/' + memory.id;
-      document.getElementById('modalDetail').classList.remove('hidden');
-    }
-
-    // Convertir Base64 a archivo File para Instagram, WhatsApp, etc.
-    async function base64ToFile(base64Data, filename) {
-      const res = await fetch(base64Data);
-      const blob = await res.blob();
-      return new File([blob], filename, { type: blob.type });
-    }
-
-    // Compartir con foto/video directo
-    async function compartirRecuerdoActual() {
-      if (!currentMemory) return;
-
-      const texto = `❤️ Recordando juntos: "${currentMemory.title}" (${currentMemory.date}) ✨`;
-      const url = window.location.origin;
-
-      try {
-        let shareData = {
-          title: currentMemory.title,
-          text: texto,
-          url: url
-        };
-
-        if (currentMemory.photo) {
-          const esVideo = currentMemory.photo.startsWith('data:video');
-          const ext = esVideo ? 'mp4' : 'jpg';
-          const archivo = await base64ToFile(currentMemory.photo, `recuerdo.${ext}`);
-
-          if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
-            shareData = {
-              files: [archivo],
-              title: currentMemory.title,
-              text: texto
-            };
-          }
-        }
-
-        if (navigator.share) {
-          await navigator.share(shareData);
-        } else {
-          const mensajeWa = encodeURIComponent(`${texto}\n${url}`);
-          window.open(`https://api.whatsapp.com/send?text=${mensajeWa}`, '_blank');
-        }
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          console.log('Error al compartir:', err);
-        }
-      }
-    }
-
-    document.getElementById('btnEditMemory').addEventListener('click', () => {
-      if (!currentMemory) return;
-      document.getElementById('modalDetail').classList.add('hidden');
-      document.getElementById('editTitle').value = currentMemory.title;
-      document.getElementById('editDate').value = currentMemory.date;
-      document.getElementById('editStory').value = currentMemory.story || '';
-      document.getElementById('formEdit').action = '/edit/' + currentMemory.id;
-      document.getElementById('modalEdit').classList.remove('hidden');
-    });
-  </script>
-  {% endif %}
-
-  <!-- Control de Audio global -->
-  <script>
-    const audio = document.getElementById('bgMusic');
-    const discIcon = document.getElementById('discIcon');
-    const musicLabel = document.getElementById('musicLabel');
-    let isPlaying = false;
-    let hasInteracted = false;
-
-    if (audio) {
-      audio.volume = 0.4;
-    }
-
-    function toggleMusic() {
-      if (!audio) return;
-      if (isPlaying) {
-        audio.pause();
-        isPlaying = false;
-        discIcon.classList.remove('animate-spin-slow');
-        musicLabel.innerText = "Play Música";
-      } else {
-        audio.play().then(() => {
-          isPlaying = true;
-          discIcon.classList.add('animate-spin-slow');
-          musicLabel.innerText = "Pausar";
-        }).catch(e => console.log("Audio play blocked", e));
-      }
-    }
-
-    function tryAutoplay() {
-      if (!audio) return;
-      if (!hasInteracted && !isPlaying) {
-        hasInteracted = true;
-        audio.play().then(() => {
-          isPlaying = true;
-          discIcon.classList.add('animate-spin-slow');
-          musicLabel.innerText = "Pausar";
-        }).catch(() => {});
-      }
-    }
-  </script>
-</body>
-</html>
+      <div class="flex justify-between items-center mb
