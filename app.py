@@ -1,5 +1,4 @@
 import os
-import psycopg2
 import base64
 from flask import Flask, render_template, request, redirect, url_for, session
 
@@ -8,37 +7,56 @@ app.secret_key = 'clave_secreta_sesion_enamorandome_de_ti'
 
 PASSWORD_SECRETA = "MoraHorn0209"
 
-def get_db():
+def get_db_connection():
     db_url = os.environ.get('DATABASE_URL')
     if db_url:
-        return psycopg2.connect(db_url)
+        import psycopg
+        # Render a veces entrega la url con 'postgres://', psycopg requiere 'postgresql://'
+        if db_url.startswith('postgres://'):
+            db_url = db_url.replace('postgres://', 'postgresql://', 1)
+        return psycopg.connect(db_url)
     import sqlite3
     return sqlite3.connect('timeline.db')
 
 def init_db():
-    conn = get_db()
+    db_url = os.environ.get('DATABASE_URL')
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS memories (
-            id SERIAL PRIMARY KEY,
-            title TEXT NOT NULL,
-            date_event TEXT NOT NULL,
-            story TEXT,
-            photo_data TEXT
-        );
-    ''')
+    if db_url:
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS memories (
+                id SERIAL PRIMARY KEY,
+                title TEXT NOT NULL,
+                date_event TEXT NOT NULL,
+                story TEXT,
+                photo_data TEXT
+            );
+        ''')
+    else:
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS memories (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                date_event TEXT NOT NULL,
+                story TEXT,
+                photo_data TEXT
+            );
+        ''')
     conn.commit()
     cursor.close()
     conn.close()
 
-init_db()
+try:
+    init_db()
+except Exception as e:
+    print(f"Error inicializando DB: {e}")
 
 @app.route('/')
 def index():
     if not session.get('logged_in'):
         return render_template('index.html', logged_in=False)
     
-    conn = get_db()
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('SELECT id, title, date_event, story, photo_data FROM memories ORDER BY date_event ASC')
     rows = cursor.fetchall()
@@ -75,12 +93,12 @@ def add():
         mime = photo.mimetype or 'image/jpeg'
         photo_b64 = f"data:{mime};base64,{base64.b64encode(data).decode('utf-8')}"
 
-    conn = get_db()
+    db_url = os.environ.get('DATABASE_URL')
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute(
-        'INSERT INTO memories (title, date_event, story, photo_data) VALUES (%s, %s, %s, %s)',
-        (title, date_event, story, photo_b64)
-    )
+    placeholder = '%s' if db_url else '?'
+    query = f'INSERT INTO memories (title, date_event, story, photo_data) VALUES ({placeholder}, {placeholder}, {placeholder}, {placeholder})'
+    cursor.execute(query, (title, date_event, story, photo_b64))
     conn.commit()
     cursor.close()
     conn.close()
@@ -96,22 +114,20 @@ def edit(id):
     story = request.form.get('story')
     photo = request.files.get('photo')
 
-    conn = get_db()
+    db_url = os.environ.get('DATABASE_URL')
+    conn = get_db_connection()
     cursor = conn.cursor()
+    p = '%s' if db_url else '?'
 
     if photo and photo.filename != '':
         data = photo.read()
         mime = photo.mimetype or 'image/jpeg'
         photo_b64 = f"data:{mime};base64,{base64.b64encode(data).decode('utf-8')}"
-        cursor.execute(
-            'UPDATE memories SET title = %s, date_event = %s, story = %s, photo_data = %s WHERE id = %s',
-            (title, date_event, story, photo_b64, id)
-        )
+        query = f'UPDATE memories SET title = {p}, date_event = {p}, story = {p}, photo_data = {p} WHERE id = {p}'
+        cursor.execute(query, (title, date_event, story, photo_b64, id))
     else:
-        cursor.execute(
-            'UPDATE memories SET title = %s, date_event = %s, story = %s WHERE id = %s',
-            (title, date_event, story, id)
-        )
+        query = f'UPDATE memories SET title = {p}, date_event = {p}, story = {p} WHERE id = {p}'
+        cursor.execute(query, (title, date_event, story, id))
 
     conn.commit()
     cursor.close()
@@ -123,9 +139,11 @@ def delete(id):
     if not session.get('logged_in'):
         return redirect(url_for('index'))
 
-    conn = get_db()
+    db_url = os.environ.get('DATABASE_URL')
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('DELETE FROM memories WHERE id = %s', (id,))
+    p = '%s' if db_url else '?'
+    cursor.execute(f'DELETE FROM memories WHERE id = {p}', (id,))
     conn.commit()
     cursor.close()
     conn.close()
