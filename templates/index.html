@@ -59,7 +59,7 @@
       object-fit: cover;
     }
 
-    /* Animación de acercar y alejar foto */
+    /* Animación de zoom cinematográfico */
     @keyframes breathingZoom {
       0% { transform: scale(1); }
       50% { transform: scale(1.08); }
@@ -171,7 +171,7 @@
                 <div class="bg-slate-900/90 border border-slate-800 hover:border-pink-500/60 p-2.5 rounded-2xl shadow-xl backdrop-blur-md w-full transition-all">
                   {% if memory.photo %}
                     <div class="w-full h-24 rounded-xl overflow-hidden mb-2 bg-slate-950">
-                      {% if memory.photo.startswith('data:video') %}
+                      {% if 'data:video' in memory.photo %}
                         <video class="w-full h-full object-cover pointer-events-none" muted>
                           <source src="{{ memory.photo }}">
                         </video>
@@ -187,29 +187,24 @@
                     {{ memory.title }}
                   </h4>
                 </div>
-                <!-- Línea conectora hacia el nodo -->
                 <div class="w-0.5 h-4 bg-pink-500/50"></div>
               </div>
 
-              <!-- Nodo sobre la línea central -->
+              <!-- Nodo central -->
               <div class="w-4 h-4 rounded-full bg-pink-500 border-2 border-slate-950 ring-4 ring-pink-500/40 shadow-md"></div>
-              <!-- Espaciador inferior para equilibrar altura -->
               <div class="h-36"></div>
 
             {% else %}
               <!-- POSICIÓN: ABAJO DE LA LÍNEA -->
-              <!-- Espaciador superior para equilibrar altura -->
               <div class="h-36"></div>
-              <!-- Nodo sobre la línea central -->
               <div class="w-4 h-4 rounded-full bg-purple-500 border-2 border-slate-950 ring-4 ring-purple-500/40 shadow-md"></div>
 
               <div class="flex flex-col items-center mt-4 transition-transform duration-300 hover:scale-105 cursor-pointer group">
-                <!-- Línea conectora hacia el nodo -->
                 <div class="w-0.5 h-4 bg-purple-500/50"></div>
                 <div class="bg-slate-900/90 border border-slate-800 hover:border-purple-500/60 p-2.5 rounded-2xl shadow-xl backdrop-blur-md w-full transition-all">
                   {% if memory.photo %}
                     <div class="w-full h-24 rounded-xl overflow-hidden mb-2 bg-slate-950">
-                      {% if memory.photo.startswith('data:video') %}
+                      {% if 'data:video' in memory.photo %}
                         <video class="w-full h-full object-cover pointer-events-none" muted>
                           <source src="{{ memory.photo }}">
                         </video>
@@ -249,7 +244,7 @@
         <i class="fas fa-times text-xs"></i>
       </button>
 
-      <!-- CONTENEDOR MULTIMEDIA (FOTO O VIDEO) -->
+      <!-- CONTENEDOR MULTIMEDIA -->
       <div id="detailMediaContainer" class="w-full h-72 bg-slate-950 overflow-hidden relative hidden">
         <img id="detailPhoto" src="" class="w-full h-full object-cover animate-photo-zoom hidden">
         <video id="detailVideo" src="" class="w-full h-full object-cover hidden" controls playsinline></video>
@@ -285,4 +280,18 @@
   <!-- MODAL: AGREGAR -->
   <div id="modalAdd" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden">
     <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl">
-      <div class="flex justify-between items-center mb
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold text-white">Nuevo Momento</h3>
+        <button onclick="document.getElementById('modalAdd').classList.add('hidden')" class="text-slate-400 hover:text-white p-2">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+
+      <form action="/add" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Título del momento</label>
+          <input type="text" name="title" required placeholder="Ej. El día que fuimos por nieve..." 
+                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-4
