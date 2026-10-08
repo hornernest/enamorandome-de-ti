@@ -83,7 +83,7 @@
     <source src="{{ url_for('static', filename='img/musica.mp3') }}" type="audio/mpeg">
   </audio>
 
-  <!-- BOTÓN FLOTANTE DE CONTROL DE MÚSICA (ARRIBA A LA IZQUIERDA) -->
+  <!-- BOTÓN FLOTANTE DE CONTROL DE MÚSICA -->
   <button id="musicToggleBtn" onclick="event.stopPropagation(); toggleMusic();" 
           class="fixed top-5 left-5 z-40 bg-slate-900/80 hover:bg-slate-800 text-pink-400 border border-pink-500/30 backdrop-blur-md px-3.5 py-2 rounded-full flex items-center gap-2.5 shadow-xl transition-all active:scale-95">
     <div id="discIcon" class="w-6 h-6 rounded-full bg-pink-500/20 flex items-center justify-center text-xs">
@@ -306,4 +306,197 @@
         <div>
           <label class="block text-xs text-slate-400 mb-1">Fecha</label>
           <input type="date" id="editDate" name="date_event" required 
-                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white
+                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Cambiar Foto o Video (opcional)</label>
+          <input type="file" name="photo" accept="image/*,video/mp4,video/webm,video/quicktime" 
+                 class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-pink-500/10 file:text-pink-400">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Anécdota / Historia</label>
+          <textarea id="editStory" name="story" rows="3" 
+                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500"></textarea>
+        </div>
+        <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 py-3 rounded-2xl font-semibold text-white shadow-lg transition-all">
+          Actualizar recuerdo
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Contador
+    const START_DATE = new Date('2026-06-19T16:37:00');
+
+    function updateCounter() {
+      const now = new Date();
+      const diffMs = now - START_DATE;
+
+      if (diffMs > 0) {
+        const totalSeconds = Math.floor(diffMs / 1000);
+        const days = Math.floor(totalSeconds / (3600 * 24));
+        const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = Math.floor(totalSeconds % 60);
+
+        document.getElementById('days').innerText = days;
+        document.getElementById('hours').innerText = hours;
+        document.getElementById('minutes').innerText = minutes;
+        document.getElementById('seconds').innerText = seconds;
+      }
+    }
+    setInterval(updateCounter, 1000);
+    updateCounter();
+
+    // Sumar nuevos recuerdos al collage
+    document.addEventListener("DOMContentLoaded", function() {
+      const memoriesData = {{ (memories or [])|tojson }};
+      const wall = document.getElementById('collageWall');
+      if (memoriesData && memoriesData.length > 0 && wall) {
+        memoriesData.forEach((m, idx) => {
+          if (m.photo && !m.photo.startsWith('data:video')) {
+            const img = document.createElement('img');
+            img.src = m.photo;
+            img.className = 'collage-tile';
+            img.style.animationDelay = `-${(idx * 2) % 10}s`;
+            wall.prepend(img);
+          }
+        });
+      }
+    });
+
+    let currentMemory = null;
+    function openDetailModal(memory) {
+      currentMemory = memory;
+      document.getElementById('detailTitle').innerText = memory.title;
+      document.getElementById('detailDate').innerText = memory.date;
+      document.getElementById('detailStory').innerText = memory.story || 'Sin historia añadida.';
+
+      const mediaContainer = document.getElementById('detailMediaContainer');
+      const photoEl = document.getElementById('detailPhoto');
+      const videoEl = document.getElementById('detailVideo');
+
+      videoEl.pause();
+
+      if (memory.photo) {
+        mediaContainer.classList.remove('hidden');
+        if (memory.photo.startsWith('data:video')) {
+          photoEl.classList.add('hidden');
+          videoEl.classList.remove('hidden');
+          videoEl.src = memory.photo;
+        } else {
+          videoEl.classList.add('hidden');
+          photoEl.classList.remove('hidden');
+          photoEl.src = memory.photo;
+        }
+      } else {
+        mediaContainer.classList.add('hidden');
+      }
+
+      document.getElementById('formDelete').action = '/delete/' + memory.id;
+      document.getElementById('modalDetail').classList.remove('hidden');
+    }
+
+    // Convertir Base64 a archivo File para Instagram, WhatsApp, etc.
+    async function base64ToFile(base64Data, filename) {
+      const res = await fetch(base64Data);
+      const blob = await res.blob();
+      return new File([blob], filename, { type: blob.type });
+    }
+
+    // Compartir con foto/video directo
+    async function compartirRecuerdoActual() {
+      if (!currentMemory) return;
+
+      const texto = `❤️ Recordando juntos: "${currentMemory.title}" (${currentMemory.date}) ✨`;
+      const url = window.location.origin;
+
+      try {
+        let shareData = {
+          title: currentMemory.title,
+          text: texto,
+          url: url
+        };
+
+        if (currentMemory.photo) {
+          const esVideo = currentMemory.photo.startsWith('data:video');
+          const ext = esVideo ? 'mp4' : 'jpg';
+          const archivo = await base64ToFile(currentMemory.photo, `recuerdo.${ext}`);
+
+          if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
+            shareData = {
+              files: [archivo],
+              title: currentMemory.title,
+              text: texto
+            };
+          }
+        }
+
+        if (navigator.share) {
+          await navigator.share(shareData);
+        } else {
+          const mensajeWa = encodeURIComponent(`${texto}\n${url}`);
+          window.open(`https://api.whatsapp.com/send?text=${mensajeWa}`, '_blank');
+        }
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.log('Error al compartir:', err);
+        }
+      }
+    }
+
+    document.getElementById('btnEditMemory').addEventListener('click', () => {
+      if (!currentMemory) return;
+      document.getElementById('modalDetail').classList.add('hidden');
+      document.getElementById('editTitle').value = currentMemory.title;
+      document.getElementById('editDate').value = currentMemory.date;
+      document.getElementById('editStory').value = currentMemory.story || '';
+      document.getElementById('formEdit').action = '/edit/' + currentMemory.id;
+      document.getElementById('modalEdit').classList.remove('hidden');
+    });
+  </script>
+  {% endif %}
+
+  <!-- Control de Audio global -->
+  <script>
+    const audio = document.getElementById('bgMusic');
+    const discIcon = document.getElementById('discIcon');
+    const musicLabel = document.getElementById('musicLabel');
+    let isPlaying = false;
+    let hasInteracted = false;
+
+    if (audio) {
+      audio.volume = 0.4;
+    }
+
+    function toggleMusic() {
+      if (!audio) return;
+      if (isPlaying) {
+        audio.pause();
+        isPlaying = false;
+        discIcon.classList.remove('animate-spin-slow');
+        musicLabel.innerText = "Play Música";
+      } else {
+        audio.play().then(() => {
+          isPlaying = true;
+          discIcon.classList.add('animate-spin-slow');
+          musicLabel.innerText = "Pausar";
+        }).catch(e => console.log("Audio play blocked", e));
+      }
+    }
+
+    function tryAutoplay() {
+      if (!audio) return;
+      if (!hasInteracted && !isPlaying) {
+        hasInteracted = true;
+        audio.play().then(() => {
+          isPlaying = true;
+          discIcon.classList.add('animate-spin-slow');
+          musicLabel.innerText = "Pausar";
+        }).catch(() => {});
+      }
+    }
+  </script>
+</body>
+</html>
